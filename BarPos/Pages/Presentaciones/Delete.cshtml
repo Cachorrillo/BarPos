@@ -1,0 +1,37 @@
+﻿@page "{id:long}"
+@model BarPos.Pages.Presentaciones.DeleteModel
+@{
+    ViewData["Title"] = "Eliminar Presentación";
+}
+
+<h1>Eliminar Presentación</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<h4>¿Seguro que deseas eliminar esta presentación?</h4>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">ID</dt>
+    <dd class="col-sm-9">@Model.Presentacion.Id</dd>
+
+    <dt class="col-sm-3">Producto</dt>
+    <dd class="col-sm-9">@Model.Presentacion.Producto?.Nombre</dd>
+
+    <dt class="col-sm-3">Categoría</dt>
+    <dd class="col-sm-9">@Model.Presentacion.Producto?.Categoria?.Nombre</dd>
+
+    <dt class="col-sm-3">Nombre</dt>
+    <dd class="col-sm-9">@Model.Presentacion.Nombre</dd>
+
+    <dt class="col-sm-3">Precio Venta</dt>
+    <dd class="col-sm-9">₡@Model.Presentacion.PrecioVenta</dd>
+
+    <dt class="col-sm-3">Equivalente (onzas)</dt>
+    <dd class="col-sm-9">@Model.Presentacion.CantidadEquivalente</dd>
+</dl>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+</form>

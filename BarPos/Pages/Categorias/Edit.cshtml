@@ -1,0 +1,24 @@
+﻿@page "{id:long}"
+@model BarPos.Pages.Categorias.EditModel
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<h1>Editar Categoria</h1>
+
+<form method="post">
+    <input type="hidden" asp-for="Categoria.Id" />
+
+    <div class="form-group mb-3">
+        <label asp-for="Categoria.Nombre" class="form-label"></label>
+        <input asp-for="Categoria.Nombre" class="form-control" />
+        <span asp-validation-for="Categoria.Nombre" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+
+
+    
+</form>
+

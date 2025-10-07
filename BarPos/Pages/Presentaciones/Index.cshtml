@@ -1,0 +1,42 @@
+﻿@page
+@model BarPos.Pages.Presentaciones.IndexModel
+@{
+    ViewData["Title"] = "Presentaciones";
+}
+
+<h1>Presentaciones</h1>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">+ Nueva Presentación</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Nombre</th>
+            <th>Precio Venta</th>
+            <th>Equivalente (onzas)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ListaPresentaciones)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Producto?.Nombre</td>
+                <td>@item.Producto?.Categoria?.Nombre</td>
+                <td>@item.Nombre</td>
+                <td>₡@item.PrecioVenta</td>
+                <td>@item.CantidadEquivalente</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-page="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

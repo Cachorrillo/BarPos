@@ -1,0 +1,41 @@
+﻿@page "{id:long}"
+@model BarPos.Pages.Presentaciones.EditModel
+@{
+    ViewData["Title"] = "Editar Presentación";
+}
+
+<h1>Editar Presentación</h1>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <input type="hidden" asp-for="Presentacion.Id" />
+
+    <div class="form-group mb-3">
+        <label asp-for="Presentacion.ProductoId" class="form-label">Producto (solo licores)</label>
+        <select asp-for="Presentacion.ProductoId" asp-items="Model.ProductosList" class="form-select"></select>
+        <span asp-validation-for="Presentacion.ProductoId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Presentacion.Nombre" class="form-label">Nombre de Presentación</label>
+        <input asp-for="Presentacion.Nombre" class="form-control" />
+        <span asp-validation-for="Presentacion.Nombre" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Presentacion.PrecioVenta" class="form-label">Precio de Venta</label>
+        <input asp-for="Presentacion.PrecioVenta" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Presentacion.PrecioVenta" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Presentacion.CantidadEquivalente" class="form-label">Equivalente (onzas)</label>
+        <input asp-for="Presentacion.CantidadEquivalente" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Presentacion.CantidadEquivalente" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+    <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+</form>

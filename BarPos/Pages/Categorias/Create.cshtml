@@ -1,0 +1,19 @@
+﻿@page
+@model BarPos.Pages.Categorias.CreateModel
+@{
+    ViewData["Title"] = "Crear Categoría";
+}
+
+<h1>Crear Nueva Categoría</h1>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Categoria.Nombre" class="control-label"></label>
+        <input asp-for="Categoria.Nombre" class="form-control" />
+        <span asp-validation-for="Categoria.Nombre" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+
+</form>

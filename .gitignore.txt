@@ -1,0 +1,37 @@
+# Archivos y carpetas de Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Carpetas de compilación
+bin/
+obj/
+Debug/
+Release/
+
+# Archivos de configuración local
+*.dbmdl
+*.bak
+*.log
+*.tmp
+
+# Archivos de publicación
+*.publish.xml
+
+# Archivos de paquetes NuGet
+*.nupkg
+packages/
+
+# Archivos temporales del sistema
+Thumbs.db
+*.DS_Store
+
+# Archivos de respaldo
+*.orig
+*.old
+
+# Archivos de configuración del entorno
+appsettings.Development.json
+.env

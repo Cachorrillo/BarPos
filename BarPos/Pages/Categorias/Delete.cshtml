@@ -1,0 +1,25 @@
+﻿@page "{id:long}"
+@model BarPos.Pages.Categorias.DeleteModel
+@{
+    ViewData["Title"] = "Eliminar Categoría";
+}
+
+<h1>Eliminar Categoría</h1>
+
+<h4>¿Seguro que deseas eliminar esta categoría?</h4>
+<hr />
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10">@Model.Categoria.Id</dd>
+
+        <dt class="col-sm-2">Nombre</dt>
+        <dd class="col-sm-10">@Model.Categoria.Nombre</dd>
+    </dl>
+</div>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+</form>
