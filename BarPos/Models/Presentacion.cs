@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +20,9 @@ public partial class Presentacion
     public decimal? PrecioVenta { get; set; }
 
     public int? CantidadEquivalente { get; set; }
+
+
+    public virtual ICollection<DetalleCuenta> DetalleCuentas { get; set; } = new List<DetalleCuenta>();
 
     [ForeignKey("ProductoId")]
     [InverseProperty("Presentaciones")]

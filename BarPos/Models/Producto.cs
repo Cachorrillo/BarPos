@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -25,6 +24,8 @@ public partial class Producto
 
     [ValidateNever]
     public virtual Categoria Categoria { get; set; } = null!;
+
+    public virtual ICollection<MovimientosInventario> MovimientosInventario { get; set; } = new List<MovimientosInventario>();
 
     [InverseProperty("Producto")]
     public virtual ICollection<Presentacion> Presentaciones { get; set; } = new List<Presentacion>();

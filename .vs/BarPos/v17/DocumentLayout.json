@@ -1,7 +1,28 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\victo\\source\\repos\\BarPos\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\presentacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\presentacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\detallecuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\detallecuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\cuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\cuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\categoria.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\categoria.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,8 +30,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 10,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Cuenta.cs",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Cuenta.cs",
+              "RelativeDocumentMoniker": "BarPos\\Models\\Cuenta.cs",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Cuenta.cs",
+              "RelativeToolTip": "BarPos\\Models\\Cuenta.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T03:34:47.947Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DetalleCuenta.cs",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\DetalleCuenta.cs",
+              "RelativeDocumentMoniker": "BarPos\\Models\\DetalleCuenta.cs",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\DetalleCuenta.cs",
+              "RelativeToolTip": "BarPos\\Models\\DetalleCuenta.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T03:33:06.573Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
@@ -34,6 +81,45 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Categoria.cs",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Categoria.cs",
+              "RelativeDocumentMoniker": "BarPos\\Models\\Categoria.cs",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Categoria.cs",
+              "RelativeToolTip": "BarPos\\Models\\Categoria.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T03:23:42.851Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Presentacion.cs",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Presentacion.cs",
+              "RelativeDocumentMoniker": "BarPos\\Models\\Presentacion.cs",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Presentacion.cs",
+              "RelativeToolTip": "BarPos\\Models\\Presentacion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T03:20:14.861Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Producto.cs",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Producto.cs",
+              "RelativeDocumentMoniker": "BarPos\\Models\\Producto.cs",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Producto.cs",
+              "RelativeToolTip": "BarPos\\Models\\Producto.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABsAAABLAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T03:16:57.405Z",
+              "EditorCaption": ""
             }
           ]
         }

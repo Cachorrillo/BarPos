@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace BarPos.Models;
 
@@ -16,4 +15,5 @@ public partial class Categoria
 
     [InverseProperty("Categoria")]
     public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
+
 }
