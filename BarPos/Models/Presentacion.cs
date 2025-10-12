@@ -17,12 +17,12 @@ public partial class Presentacion
     public string Nombre { get; set; } = null!;
 
     [BindRequired]
-    public decimal? PrecioVenta { get; set; }
+    public decimal PrecioVenta { get; set; }
 
     public int? CantidadEquivalente { get; set; }
 
 
-    public virtual ICollection<DetalleCuenta> DetalleCuentas { get; set; } = new List<DetalleCuenta>();
+    public virtual ICollection<DetalleCuenta> DetalleCuenta { get; set; } = new List<DetalleCuenta>();
 
     [ForeignKey("ProductoId")]
     [InverseProperty("Presentaciones")]

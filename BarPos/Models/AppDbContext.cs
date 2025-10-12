@@ -63,23 +63,36 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<DetalleCuenta>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DetalleC__3214EC07FC382D55");
+            entity.HasKey(e => e.Id);
 
-            entity.Property(e => e.Cantidad).HasDefaultValue(1);
             entity.Property(e => e.PrecioUnitario).HasColumnType("decimal(10, 2)");
-            entity.Property(e => e.Subtotal)
-                .HasComputedColumnSql("([Cantidad]*[PrecioUnitario])", true)
-                .HasColumnType("decimal(21, 2)");
+            entity.Property(e => e.Cantidad).HasDefaultValue(1);
 
-            entity.HasOne(d => d.Cuenta).WithMany(p => p.DetalleCuenta)
+            // Relación obligatoria con Cuenta
+            entity.HasOne(d => d.Cuenta)
+                .WithMany(p => p.DetalleCuenta)
                 .HasForeignKey(d => d.CuentaId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_DetalleCuenta_Cuentas");
 
-            entity.HasOne(d => d.Presentacion).WithMany(p => p.DetalleCuenta)
+            // Relación opcional con Presentación
+            entity.HasOne(d => d.Presentacion)
+                .WithMany(p => p.DetalleCuenta)
                 .HasForeignKey(d => d.PresentacionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false)
                 .HasConstraintName("FK_DetalleCuenta_Presentaciones");
+
+            // ✅ Nueva relación opcional directa con Producto
+            entity.HasOne(d => d.Producto)
+                .WithMany()
+                .HasForeignKey(d => d.ProductoId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false)
+                .HasConstraintName("FK_DetalleCuenta_Productos");
         });
+
+
 
         modelBuilder.Entity<MovimientosInventario>(entity =>
         {
@@ -94,7 +107,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.TipoMovimiento).HasMaxLength(20);
 
-            entity.HasOne(d => d.Producto).WithMany(p => p.MovimientosInventarios)
+            entity.HasOne(d => d.Producto).WithMany(p => p.MovimientosInventario)
                 .HasForeignKey(d => d.ProductoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_MovimientosInventario_Productos");
