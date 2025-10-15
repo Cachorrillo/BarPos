@@ -11,20 +11,12 @@
       "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\detalles.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\cuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\cuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\pages\\pos\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\presentacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\presentacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\detallecuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\detallecuenta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\pages\\pos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 10,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -62,55 +54,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "DetalleCuenta.cs",
-              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\DetalleCuenta.cs",
-              "RelativeDocumentMoniker": "BarPos\\Models\\DetalleCuenta.cs",
-              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\DetalleCuenta.cs",
-              "RelativeToolTip": "BarPos\\Models\\DetalleCuenta.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAywBQAAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T01:08:05.818Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Presentacion.cs",
-              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Presentacion.cs",
-              "RelativeDocumentMoniker": "BarPos\\Models\\Presentacion.cs",
-              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Presentacion.cs",
-              "RelativeToolTip": "BarPos\\Models\\Presentacion.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T01:05:53.528Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Cuenta.cs",
-              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Cuenta.cs",
-              "RelativeDocumentMoniker": "BarPos\\Models\\Cuenta.cs",
-              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\Cuenta.cs",
-              "RelativeToolTip": "BarPos\\Models\\Cuenta.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAgwBoAAABMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-11T23:50:01.188Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
               "Title": "Detalles.cshtml.cs",
               "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Detalles.cshtml.cs",
               "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Detalles.cshtml.cs",
               "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Detalles.cshtml.cs",
               "RelativeToolTip": "BarPos\\Pages\\POS\\Detalles.cshtml.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAAowCoAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAiwH4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-11T23:20:05.249Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-14T02:17:32.369Z"
             },
             {
               "$type": "Document",
@@ -120,23 +72,34 @@
               "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Detalles.cshtml",
               "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Detalles.cshtml",
               "RelativeToolTip": "BarPos\\Pages\\POS\\Detalles.cshtml",
-              "ViewState": "AgIAABYAAAAAAAAAAAAAwCkAAAA9AAAAAAAAAA==",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAAAIEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-11T23:19:30.751Z",
+              "WhenOpened": "2025-10-14T02:17:25.257Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "BarPos\\Models\\AppDbContext.cs",
-              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Models\\AppDbContext.cs",
-              "RelativeToolTip": "BarPos\\Models\\AppDbContext.cs",
-              "ViewState": "AgIAADUAAAAAAAAAAAAiwEEAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-11T20:03:14.657Z",
-              "EditorCaption": ""
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Index.cshtml",
+              "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Index.cshtml",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Index.cshtml",
+              "RelativeToolTip": "BarPos\\Pages\\POS\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-14T02:17:08.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Create.cshtml",
+              "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Create.cshtml",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Create.cshtml",
+              "RelativeToolTip": "BarPos\\Pages\\POS\\Create.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-14T02:17:00.898Z"
             }
           ]
         }
