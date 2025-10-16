@@ -18,13 +18,10 @@ namespace BarPos.Pages.POS
         public IList<DetalleCuenta> Detalles { get; set; } = new List<DetalleCuenta>();
 
         [BindProperty]
-        public long CategoriaId { get; set; }
-
-        [BindProperty]
         public long ProductoId { get; set; }
 
         [BindProperty]
-        public long PresentacionId { get; set; }
+        public long? PresentacionId { get; set; }
 
         [BindProperty]
         public int Cantidad { get; set; } = 1;
@@ -36,14 +33,11 @@ namespace BarPos.Pages.POS
                 return NotFound();
 
             Detalles = await _context.DetalleCuenta
-                  .Include(d => d.Producto)
-                  .Include(d => d.Presentacion)
-                  .ThenInclude(p => p.Producto)
-                  .Where(d => d.CuentaId == id)
-                  .ToListAsync();
-
-
-
+                .Include(d => d.Producto)
+                .Include(d => d.Presentacion)
+                    .ThenInclude(p => p.Producto)
+                .Where(d => d.CuentaId == id)
+                .ToListAsync();
 
             ViewData["Categorias"] = await _context.Categorias
                 .OrderBy(c => c.Nombre)
@@ -52,7 +46,6 @@ namespace BarPos.Pages.POS
             return Page();
         }
 
-        // Handler AJAX → productos por categoría
         public async Task<JsonResult> OnGetProductosPorCategoria(long categoriaId)
         {
             var productos = await _context.Productos
@@ -63,7 +56,6 @@ namespace BarPos.Pages.POS
             return new JsonResult(productos);
         }
 
-        // Handler AJAX → presentaciones por producto
         public async Task<JsonResult> OnGetPresentacionesPorProducto(long productoId)
         {
             var presentaciones = await _context.Presentaciones
@@ -74,60 +66,124 @@ namespace BarPos.Pages.POS
             return new JsonResult(presentaciones);
         }
 
-        public string Prueba => "Handler detectado correctamente";
-
-        // Handler POST → agregar producto
-        public async Task<IActionResult> OnPostAgregarAsync(long id)
+        public async Task<IActionResult> OnPostAgregarMultiplesAsync(long id, [FromBody] List<DetalleCuentaTemp> productos)
         {
             var cuenta = await _context.Cuentas.FindAsync(id);
             if (cuenta == null)
                 return NotFound();
 
-            decimal precioVenta = 0;
-            long? presentacionId = null;
-            long? productoId = null;
-
-            if (PresentacionId > 0)
+            foreach (var item in productos)
             {
-                // 🔸 Caso: producto con presentación (licor)
-                var presentacion = await _context.Presentaciones
-                    .Include(p => p.Producto)
-                    .FirstOrDefaultAsync(p => p.Id == PresentacionId);
+                decimal precio = 0;
+                long? productoId = item.ProductoId;
+                long? presentacionId = item.PresentacionId;
 
-                if (presentacion == null)
-                    return NotFound();
+                if (presentacionId.HasValue)
+                {
+                    var presentacion = await _context.Presentaciones.FirstOrDefaultAsync(p => p.Id == presentacionId);
+                    if (presentacion == null) continue;
+                    precio = presentacion.PrecioVenta;
+                    productoId = presentacion.ProductoId;
+                }
+                else
+                {
+                    var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Id == productoId);
+                    if (producto == null) continue;
+                    precio = producto.PrecioCompra;
+                }
 
-                presentacionId = presentacion.Id;
-                productoId = presentacion.ProductoId;
-                precioVenta = presentacion.PrecioVenta;
+                var nuevo = new DetalleCuenta
+                {
+                    CuentaId = cuenta.Id,
+                    ProductoId = productoId,
+                    PresentacionId = presentacionId,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = precio
+                };
+
+                _context.DetalleCuenta.Add(nuevo);
+                cuenta.Total += precio * item.Cantidad;
             }
-            else
-            {
-                // 🔹 Caso: producto sin presentación
-                var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Id == ProductoId);
-                if (producto == null)
-                    return NotFound();
 
-                productoId = producto.Id;
-                precioVenta = producto.PrecioCompra;
-            }
-
-            var nuevoDetalle = new DetalleCuenta
-            {
-                CuentaId = cuenta.Id,
-                PresentacionId = presentacionId,
-                ProductoId = productoId,   // ✅ ahora siempre guarda el producto asociado
-                Cantidad = Cantidad,
-                PrecioUnitario = precioVenta
-            };
-
-            _context.DetalleCuenta.Add(nuevoDetalle);
-            cuenta.Total += precioVenta * Cantidad;
             await _context.SaveChangesAsync();
-
-            return RedirectToPage(new { id });
+            return new JsonResult(new { success = true });
         }
 
+        public class DetalleCuentaTemp
+        {
+            public long ProductoId { get; set; }
+            public long? PresentacionId { get; set; }
+            public int Cantidad { get; set; }
+        }
+
+        public async Task<IActionResult> OnPostActualizarDetalleAsync(long id, [FromBody] DetalleUpdateRequest req)
+        {
+            if (req == null || req.DetalleId <= 0 || req.Cantidad < 1)
+                return new JsonResult(new { success = false, message = "Datos inválidos." });
+
+            var detalle = await _context.DetalleCuenta
+                .Include(d => d.Cuenta)
+                .FirstOrDefaultAsync(d => d.Id == req.DetalleId && d.CuentaId == id);
+
+            if (detalle == null)
+                return new JsonResult(new { success = false, message = "Detalle no encontrado." });
+
+            // Restar el subtotal anterior del total
+            detalle.Cuenta.Total -= detalle.PrecioUnitario * detalle.Cantidad;
+
+            // Actualizar cantidad
+            detalle.Cantidad = req.Cantidad;
+
+            // Sumar el nuevo subtotal al total
+            var nuevoSubtotal = detalle.PrecioUnitario * detalle.Cantidad;
+            detalle.Cuenta.Total += nuevoSubtotal;
+
+            await _context.SaveChangesAsync();
+
+            return new JsonResult(new
+            {
+                success = true,
+                detalleId = detalle.Id,
+                nuevoSubtotal = nuevoSubtotal,
+                nuevoTotal = detalle.Cuenta.Total
+            });
+        }
+
+        public async Task<IActionResult> OnPostEliminarDetalleAsync(long id, [FromBody] DetalleDeleteRequest req)
+        {
+            if (req == null || req.DetalleId <= 0)
+                return new JsonResult(new { success = false, message = "Datos inválidos." });
+
+            var detalle = await _context.DetalleCuenta
+                .Include(d => d.Cuenta)
+                .FirstOrDefaultAsync(d => d.Id == req.DetalleId && d.CuentaId == id);
+
+            if (detalle == null)
+                return new JsonResult(new { success = false, message = "Detalle no encontrado." });
+
+            // Restar el subtotal del total y eliminar
+            detalle.Cuenta.Total -= detalle.PrecioUnitario * detalle.Cantidad;
+            _context.DetalleCuenta.Remove(detalle);
+            await _context.SaveChangesAsync();
+
+            return new JsonResult(new
+            {
+                success = true,
+                detalleId = detalle.Id,
+                nuevoTotal = detalle.Cuenta.Total
+            });
+        }
+
+        public class DetalleUpdateRequest
+        {
+            public long DetalleId { get; set; }
+            public int Cantidad { get; set; }
+        }
+
+        public class DetalleDeleteRequest
+        {
+            public long DetalleId { get; set; }
+        }
 
 
     }
