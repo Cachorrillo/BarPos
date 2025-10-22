@@ -40,11 +40,12 @@ else
                         <a asp-page="Detalles" asp-route-id="@cuenta.Id" class="btn btn-primary btn-sm">
                             <i class="bi bi-cart-plus"></i> Agregar Productos
                         </a>
-                        <form method="post" asp-page-handler="CerrarCuenta" asp-route-id="@cuenta.Id" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="bi bi-x-circle"></i> Cerrar
-                            </button>
-                        </form>
+                        <a asp-page="Detalles" asp-route-id="@cuenta.Id"
+                           class="btn btn-outline-primary btn-sm">
+                            Ver / Cerrar cuenta
+                        </a>
+
+
                     </td>
                 </tr>
             }

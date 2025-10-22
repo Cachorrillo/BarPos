@@ -44,7 +44,7 @@ else
                 <th>Cantidad</th>
                 <th>Precio Unitario (₡)</th>
                 <th>Subtotal (₡)</th>
-                <th>Acciones</th> <!-- 👈 NUEVA COLUMNA -->
+                <th>Acciones</th> <!--  NUEVA COLUMNA -->
             </tr>
         </thead>
         <tbody>
@@ -103,7 +103,70 @@ else
 
 }
 
-<!-- 🧩 Modal POS mejorado -->
+<!-- Botón para cerrar cuenta -->
+<div class="text-end mt-4">
+    <button id="btnCerrarCuenta" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalPago">
+        <i class="bi bi-cash-coin"></i> Cerrar cuenta / Pagar
+    </button>
+</div>
+
+<!-- Modal de pago -->
+<div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="modalPagoLabel">Cierre de cuenta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formPago">
+                    <div class="mb-3">
+                        <label for="metodoPago" class="form-label">Método de pago</label>
+                        <select id="metodoPago" class="form-select">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Total a pagar</label>
+                        <input type="text" id="totalPago" class="form-control" readonly />
+                    </div>
+
+                    <div class="mb-3" id="grpMonto">
+                        <label class="form-label">Monto recibido</label>
+                        <input type="text" id="montoPagado" class="form-control" inputmode="numeric" pattern="[0-9]*" />
+                    </div>
+
+                    <!-- Botones de efectivo -->
+                    <div class="mb-2 d-flex flex-wrap gap-2" id="cashButtons">
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="500">₡500</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="1000">₡1.000</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="2000">₡2.000</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="5000">₡5.000</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="10000">₡10.000</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="20000">₡20.000</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="50000">₡50.000</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="btnLimpiarMonto">Limpiar</button>
+                    </div>
+
+
+                    <div class="mb-3" id="grpVuelto">
+                        <label class="form-label">Vuelto</label>
+                        <input type="text" id="vuelto" class="form-control" readonly />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmarPago" class="btn btn-success">Confirmar pago</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--  Modal POS  -->
 <div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -180,7 +243,7 @@ else
     </div>
 </div>
 
-<!-- ✅ Toast de confirmación -->
+<!-- Toast de confirmación -->
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
     <div id="toastAgregado" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
@@ -207,17 +270,21 @@ else
             let productosEnCarrito = [];
             let productoTemporal = null;
 
-            // 🔔 Toast visual
+            //  Toast visual
             function mostrarToast(nombreProducto) {
                 const toastEl = document.getElementById('toastAgregado');
                 toastEl.querySelector('.toast-body').textContent = `✅ ${nombreProducto} agregado al carrito.`;
                 const toast = new bootstrap.Toast(toastEl);
                 toast.show();
             }
+            
 
-            // ===============================
+
+
+
+            
             // 🔹 CARGA DE CATEGORÍAS Y PRODUCTOS
-            // ===============================
+            
             $(".categoria-btn").click(function () {
                 categoriaSeleccionada = $(this).data("nombre");
                 const categoriaId = $(this).data("id");
@@ -292,9 +359,9 @@ else
                 $("#seccionPresentaciones").hide();
             });
 
-            // ===============================
+            
             // 🔹 CARRITO DE PRODUCTOS
-            // ===============================
+            
             function renderTabla() {
                 const tbody = $("#tablaSeleccionados tbody");
                 tbody.empty();
@@ -352,9 +419,9 @@ else
                 });
             });
 
-            // ===============================
-            // 🔹 ACTUALIZAR / ELIMINAR DETALLES EXISTENTES
-            // ===============================
+            
+            // ACTUALIZAR / ELIMINAR DETALLES EXISTENTES
+            
             $(document).on("click", ".btn-actualizar", function () {
                 const detalleId = $(this).data("detalle-id");
                 const nuevaCantidad = parseInt($(`input[data-detalle-id='${detalleId}']`).val(), 10);
@@ -409,9 +476,9 @@ else
                 });
             });
 
-            // ===============================
-            // 🔹 BOTONES + / − PARA CANTIDAD
-            // ===============================
+            
+            //  BOTONES + / − PARA CANTIDAD
+            
             $(document).on("click", ".btn-mas", function () {
                 const detalleId = $(this).data("detalle-id");
                 const input = $(`input[data-detalle-id='${detalleId}']`);
@@ -448,7 +515,126 @@ else
                 });
             });
 
-        }); // 👈 cierre correcto de $(document).ready
+             // =================== UTILIDAD PARA MONTOS ===================
+                    // Convierte "10,000.00", "10.000,00", "₡10 000", "10000" → 10000.00
+            function toNumber(value) {
+                if (value === null || value === undefined) return 0;
+                let v = value.toString().trim();
+
+                // Quitar moneda y espacios
+                v = v.replace(/[₡\s]/g, '');
+
+                // Si tiene punto y coma: asumimos punto = decimal, coma = miles → borrar comas
+                if (v.includes('.') && v.includes(',')) {
+                    v = v.replace(/,/g, '');
+                }
+                // Si solo hay comas (formato latino), tratarlas como decimal
+                else if (v.includes(',') && !v.includes('.')) {
+                    v = v.replace(/\./g, '').replace(',', '.');
+                }
+
+                const num = parseFloat(v.replace(/[^\d.-]/g, ''));
+                return isNaN(num) ? 0 : num;
+            }
+
+
+
+            // =================== CIERRE DE CUENTA ===================
+                   
+            $('#btnCerrarCuenta').on('click', function () {
+                const totalNum = toNumber($('#totalActual').text());
+                $('#totalPago').val(totalNum.toFixed(2));
+                $('#montoPagado').val('');
+                $('#vuelto').val('');
+                $('#metodoPago').val('Efectivo');
+                $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+            });
+
+
+            // Al escribir efectivo o usar botones, recalcular vuelto
+            function recalcularVuelto() {
+                const metodo = $('#metodoPago').val();
+                if (metodo === 'Efectivo') {
+                    const total = toNumber($('#totalPago').val());
+                    const pagado = toNumber($('#montoPagado').val());
+                    const vuelto = pagado - total;
+                    $('#vuelto').val(vuelto > 0 ? vuelto.toFixed(2) : '0.00');
+                } else {
+                    $('#vuelto').val('0.00');
+                }
+            }
+
+            $('#montoPagado').on('input', recalcularVuelto);
+
+            // Cambiar comportamiento según método de pago
+            $('#metodoPago').on('change', function () {
+                const metodo = $(this).val();
+
+                if (metodo === 'Tarjeta') {
+                $('#grpMonto, #grpVuelto, #cashButtons').addClass('d-none');
+                $('#montoPagado').val($('#totalPago').val());
+                $('#vuelto').val('0.00');
+            } else {
+                $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+                $('#montoPagado').val('');
+                $('#vuelto').val('');
+            }
+
+            });
+
+            // Botones rápidos de efectivo
+            $(document).on('click', '.btn-cash', function () {
+                const add = toNumber($(this).data('amount'));
+                const actual = toNumber($('#montoPagado').val());
+                const nuevo = actual + add;
+                $('#montoPagado').val(nuevo).trigger('input');
+            });
+
+            $('#btnLimpiarMonto').on('click', function () {
+                $('#montoPagado').val('').trigger('input');
+            });
+
+            // Confirmar pago
+            $('#btnConfirmarPago').on('click', function () {
+                const metodo = $('#metodoPago').val();
+
+                const totalNum   = toNumber($('#totalPago').val());
+                let montoPagado  = toNumber($('#montoPagado').val());
+                let vuelto       = toNumber($('#vuelto').val());
+
+                // En tarjeta no se pide monto: igualamos al total
+                if (metodo === 'Tarjeta') {
+                    montoPagado = totalNum;
+                    vuelto = 0;
+                }
+
+                if (metodo === 'Efectivo' && (isNaN(montoPagado) || montoPagado < totalNum)) {
+                    alert('El monto pagado no puede ser menor al total.');
+                    return;
+                }
+
+                $.ajax({
+                    url: `/POS/Detalles/${cuentaId}?handler=CerrarCuenta`,
+                    type: 'POST',
+                    headers: { "RequestVerificationToken": token },
+                    data: {
+                        metodoPago: metodo,
+                        montoPagado: montoPagado.toFixed(2),
+                        vuelto: vuelto.toFixed(2)
+                    },
+                    success: function () {
+                        alert('✅ Cuenta cerrada correctamente.');
+                        window.location.href = '/POS/Index'; // 🔁 redirige a la lista principal
+                    },
+                    error: function (xhr) {
+                        alert('❌ Error al cerrar la cuenta.\n' + (xhr.responseText || ''));
+                    }
+                });
+            });
+
+
+
+        }); 
     </script>
 }
 

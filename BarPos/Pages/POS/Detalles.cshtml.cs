@@ -2,6 +2,10 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using BarPos.Models;
+using System.Globalization;
+using System.Text.Json;
+using System.IO;
+using System.Threading;
 
 namespace BarPos.Pages.POS
 {
@@ -14,6 +18,7 @@ namespace BarPos.Pages.POS
             _context = context;
         }
 
+        [BindProperty]
         public Cuenta Cuenta { get; set; } = new Cuenta();
         public IList<DetalleCuenta> Detalles { get; set; } = new List<DetalleCuenta>();
 
@@ -183,6 +188,63 @@ namespace BarPos.Pages.POS
         public class DetalleDeleteRequest
         {
             public long DetalleId { get; set; }
+        }
+
+        public class PagoRequest
+        {
+            public string MetodoPago { get; set; } = "";
+            public decimal MontoPagado { get; set; }
+            public decimal Vuelto { get; set; }
+        }
+
+        public async Task<IActionResult> OnPostCerrarCuentaAsync(string metodoPago, decimal montoPagado, decimal vuelto)
+        {
+            if (Cuenta == null || Cuenta.Id <= 0)
+                return BadRequest("Cuenta no válida.");
+
+            // 🔧 Forzar cultura invariable para todo el bloque
+            var originalCulture = Thread.CurrentThread.CurrentCulture;
+            var originalUICulture = Thread.CurrentThread.CurrentUICulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
+            try
+            {
+                var cuenta = await _context.Cuentas
+                    .Include(c => c.DetalleCuenta)
+                    .FirstOrDefaultAsync(c => c.Id == Cuenta.Id);
+
+                if (cuenta == null)
+                    return NotFound("Cuenta no encontrada.");
+
+                if (cuenta.Estado == "Cerrada")
+                    return BadRequest("La cuenta ya está cerrada.");
+
+                // Calcular total real desde los detalles
+                var total = cuenta.DetalleCuenta.Sum(d => d.Cantidad * d.PrecioUnitario);
+
+                // Validar el monto pagado
+                if (decimal.Round(montoPagado, 2) + 0.001m < decimal.Round(total, 2))
+                    return BadRequest("El monto pagado no puede ser menor al total.");
+
+                // Actualizar los datos
+                cuenta.MetodoPago = metodoPago;
+                cuenta.MontoPagado = montoPagado;
+                cuenta.Vuelto = vuelto;
+                cuenta.Total = total;
+                cuenta.Estado = "Cerrada";
+
+                _context.Cuentas.Update(cuenta);
+                await _context.SaveChangesAsync();
+
+                return new JsonResult(new { success = true, message = "Cuenta cerrada correctamente." });
+            }
+            finally
+            {
+                // 🔙 Restaurar cultura original (por seguridad)
+                Thread.CurrentThread.CurrentCulture = originalCulture;
+                Thread.CurrentThread.CurrentUICulture = originalUICulture;
+            }
         }
 
 
