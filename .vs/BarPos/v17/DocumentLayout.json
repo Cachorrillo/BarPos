@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\victo\\source\\repos\\BarPos\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\pages\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\pages\\pos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,6 +43,32 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Index.cshtml",
+              "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Index.cshtml",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Index.cshtml",
+              "RelativeToolTip": "BarPos\\Pages\\POS\\Index.cshtml",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAsAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-23T02:17:06.015Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "BarPos\\Pages\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "BarPos\\Pages\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADUAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-23T01:45:41.011Z",
+              "EditorCaption": ""
             }
           ]
         }

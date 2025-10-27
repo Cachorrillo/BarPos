@@ -1,0 +1,80 @@
+﻿@page
+@model BarPos.Pages.POS.CuentasAbiertasModel
+@{
+    ViewData["Title"] = "Cuentas Abiertas";
+}
+
+<h2 class="text-center mb-4">🍻 Cuentas Abiertas</h2>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-10">
+        <input type="text" name="FiltroCliente" value="@Model.FiltroCliente"
+               class="form-control" placeholder="🔍 Buscar por cliente (cuentas sin pagar)" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+    </div>
+</form>
+
+@if (Model.CuentasAbiertas.Count == 0)
+{
+    <div class="alert alert-info text-center">No hay cuentas abiertas actualmente.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Fecha Apertura</th>
+                    <th>Total (₡)</th>
+                    <th>Productos</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.CuentasAbiertas)
+                {
+                    <tr>
+                        <td>@c.NombreCliente</td>
+                        <td>@c.FechaApertura.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@c.Total.ToString("N2")</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#productos-@c.Id">
+                                Ver
+                            </button>
+                        </td>
+                        <td>
+                            <a asp-page="Detalles" asp-route-id="@c.Id"
+                               class="btn btn-sm btn-success">
+                                <i class="bi bi-arrow-return-right"></i> Reanudar
+                            </a>
+                        </td>
+                    </tr>
+                    <tr class="collapse bg-light" id="productos-@c.Id">
+                        <td colspan="5">
+                            <ul class="list-group list-group-flush text-start">
+                                @foreach (var d in c.DetalleCuenta)
+                                {
+                                    var nombreProducto = d.Producto?.Nombre
+                                    ?? d.Presentacion?.Producto?.Nombre
+                                    ?? "Desconocido";
+                                    var presentacion = d.Presentacion?.Nombre ?? "-";
+                                    <li class="list-group-item">
+                                        <strong>@nombreProducto</strong> – @presentacion × @d.Cantidad → ₡@((d.Cantidad * d.PrecioUnitario).ToString("N2"))
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

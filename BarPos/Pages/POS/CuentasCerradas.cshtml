@@ -1,0 +1,127 @@
+﻿@page
+@using System.Globalization
+
+@model BarPos.Pages.POS.CuentasCerradasModel
+@{
+    ViewData["Title"] = "Cuentas Cerradas";
+}
+
+<h2 class="text-center mb-4">🧾 Cuentas Cerradas / Pagadas</h2>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="FiltroCliente" value="@Model.FiltroCliente"
+               class="form-control" placeholder="🔍 Buscar por cliente" />
+    </div>
+    <div class="col-md-3">
+        <select name="FiltroMetodo" class="form-select">
+            <option value="">-- Método de Pago --</option>
+            <option value="Efectivo" selected="@(Model.FiltroMetodo == "Efectivo")">Efectivo</option>
+            <option value="Tarjeta" selected="@(Model.FiltroMetodo == "Tarjeta")">Tarjeta</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="FiltroFecha" value="@(Model.FiltroFecha?.ToString("yyyy-MM-dd"))"
+               class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-funnel"></i> Filtrar
+        </button>
+    </div>
+</form>
+
+@if (Model.CuentasCerradas.Count == 0)
+{
+    <div class="alert alert-info text-center">No hay cuentas cerradas que coincidan con los filtros.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Método</th>
+                    <th>Total (₡)</th>
+                    <th>Monto Pagado</th>
+                    <th>Vuelto</th>
+                    <th>Productos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.CuentasCerradas)
+                {
+                    <tr>
+                        <td>@c.NombreCliente</td>
+                        <td>@c.FechaApertura.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@c.MetodoPago</td>
+                        <td>@c.Total.ToString("N2")</td>
+                        <td>@Convert.ToDecimal(c.MontoPagado).ToString("N2")</td>
+                        <td>@Convert.ToDecimal(c.Vuelto).ToString("N2")</td>
+
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#productos-@c.Id"
+                                    aria-expanded="false">
+                                Ver
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="collapse bg-light" id="productos-@c.Id">
+                        <td colspan="7">
+                            <ul class="list-group list-group-flush text-start">
+                                @foreach (var d in c.DetalleCuenta)
+                                {
+                                    <li class="list-group-item">
+                                        @{
+                                            var nombreProducto = d.Producto?.Nombre
+                                            ?? d.Presentacion?.Producto?.Nombre
+                                            ?? "Desconocido";
+                                            var nombrePresentacion = d.Presentacion?.Nombre ?? "-";
+                                            var subtotal = (d.Cantidad * d.PrecioUnitario).ToString("N2");
+                                        }
+                                        <strong>@nombreProducto</strong> – @nombrePresentacion × @d.Cantidad → ₡@subtotal
+                                    </li>
+
+                                }
+                            </ul>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+
+
+
+@section Scripts {
+    <script>
+        // Cuando el usuario escribe en el campo de búsqueda
+        const inputBuscar = document.querySelector('input[name="FiltroCliente"]');
+        if (inputBuscar) {
+            inputBuscar.addEventListener('input', function () {
+                const valor = this.value.trim();
+                const params = new URLSearchParams(window.location.search);
+
+                // Actualizar o eliminar el parámetro FiltroCliente
+                if (valor) {
+                    params.set('FiltroCliente', valor);
+                } else {
+                    params.delete('FiltroCliente');
+                }
+
+                // Recargar la página con el nuevo filtro
+                clearTimeout(window.timerBusqueda);
+                window.timerBusqueda = setTimeout(() => {
+                    window.location.search = params.toString();
+                }, 400); // espera 400ms entre teclas
+            });
+        }
+    </script>
+}
