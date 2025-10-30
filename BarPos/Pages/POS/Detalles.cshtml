@@ -94,6 +94,30 @@ else
                 </tr>
             }
 
+            <!-- Modal de confirmación para eliminar producto -->
+            <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-danger">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="modalEliminarLabel">Eliminar producto</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
+                            <p class="mt-3 fs-5">¿Seguro que deseas eliminar este producto del pedido?</p>
+                            <input type="hidden" id="detalleIdEliminar" />
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </tbody>
     </table>
 
@@ -243,20 +267,97 @@ else
     </div>
 </div>
 
-<!-- Toast de confirmación -->
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
-    <div id="toastAgregado" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fw-bold">
-                ✅ Producto agregado al carrito.
+<!-- Modal de confirmación para eliminar producto -->
+<div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarLabel">Eliminar producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div class="modal-body text-center">
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
+                <p class="mt-3 fs-5">¿Seguro que deseas eliminar este producto del pedido?</p>
+                <input type="hidden" id="detalleIdEliminar" />
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 
+<!-- Toast de confirmación de pago -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+    <div id="toastPago" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-bold">
+                💰 Pago completado con éxito.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
 
+<style>
+    /* Fondo verde parpadeante */
+    @@keyframes flashGreen {
+        0%, 100% {
+            background-color: white;
+        }
+
+        25%, 75% {
+            background-color: rgba(0, 255, 0, 0.4);
+        }
+
+        50% {
+            background-color: rgba(0, 255, 0, 0.6);
+        }
+    }
+
+    body.flash-green {
+        animation: flashGreen 1s ease-in-out 2;
+    }
+
+    /* Mensaje de pago exitoso visible en el centro */
+    #mensajePagoExitoso {
+        display: none;
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #28a745;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        padding: 25px 40px;
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(0, 128, 0, 0.6);
+        z-index: 2000;
+        text-align: center;
+    }
+
+    input.is-valid {
+        border-color: #28a745 !important;
+        font-weight: bold;
+        color: #155724 !important;
+    }
+
+    input.is-invalid {
+        border-color: #dc3545 !important;
+        font-weight: bold;
+        color: #721c24 !important;
+    }
+
+</style>
+
+<div id="mensajePagoExitoso">
+    💰 Pago completado con éxito
+</div>
 
 @section Scripts {
     <script>
@@ -277,14 +378,14 @@ else
                 const toast = new bootstrap.Toast(toastEl);
                 toast.show();
             }
-            
 
 
 
 
-            
+
+
             // 🔹 CARGA DE CATEGORÍAS Y PRODUCTOS
-            
+
             $(".categoria-btn").click(function () {
                 categoriaSeleccionada = $(this).data("nombre");
                 const categoriaId = $(this).data("id");
@@ -359,9 +460,9 @@ else
                 $("#seccionPresentaciones").hide();
             });
 
-            
+
             // 🔹 CARRITO DE PRODUCTOS
-            
+
             function renderTabla() {
                 const tbody = $("#tablaSeleccionados tbody");
                 tbody.empty();
@@ -419,9 +520,9 @@ else
                 });
             });
 
-            
+
             // ACTUALIZAR / ELIMINAR DETALLES EXISTENTES
-            
+
             $(document).on("click", ".btn-actualizar", function () {
                 const detalleId = $(this).data("detalle-id");
                 const nuevaCantidad = parseInt($(`input[data-detalle-id='${detalleId}']`).val(), 10);
@@ -451,34 +552,54 @@ else
                 });
             });
 
-            $(document).on("click", ".btn-eliminar", function () {
-                if (!confirm("¿Seguro que deseas eliminar este producto?")) return;
+                    let detalleAEliminar = null;
 
-                const detalleId = $(this).data("detalle-id");
+        $(document).on("click", ".btn-eliminar", function () {
+            detalleAEliminar = $(this).data("detalle-id");
+            const modal = new bootstrap.Modal(document.getElementById("modalConfirmarEliminar"));
+            modal.show();
+        });
 
-                $.ajax({
-                    url: `/POS/Detalles/${cuentaId}?handler=EliminarDetalle`,
-                    method: "POST",
-                    contentType: "application/json",
-                    headers: { "RequestVerificationToken": token },
-                    data: JSON.stringify({ detalleId: detalleId }),
-                    success: function (data) {
-                        if (!data || !data.success) {
-                            alert("⚠️ No se pudo eliminar. " + (data?.message ?? ""));
-                            return;
-                        }
-                        $(`#row-${data.detalleId}`).remove();
-                        $("#totalActual").text(fmt(data.nuevoTotal));
-                    },
-                    error: function (xhr) {
-                        alert("❌ Error al eliminar: " + (xhr.responseText || "Sin detalles"));
+        $("#btnConfirmarEliminar").on("click", function () {
+            if (!detalleAEliminar) return;
+
+            const detalleId = detalleAEliminar;
+            const cuentaId = @Model.Cuenta.Id;
+            const token = $('#antiForgery input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: `/POS/Detalles/${cuentaId}?handler=EliminarDetalle`,
+                method: "POST",
+                contentType: "application/json",
+                headers: { "RequestVerificationToken": token },
+                data: JSON.stringify({ detalleId: detalleId }),
+                success: function (data) {
+                    if (!data || !data.success) {
+                        alert("⚠️ No se pudo eliminar. " + (data?.message ?? ""));
+                        return;
                     }
-                });
-            });
 
-            
+                    // Cerrar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById("modalConfirmarEliminar"));
+                    modal.hide();
+
+                    // Eliminar fila y actualizar total
+                    $(`#row-${data.detalleId}`).fadeOut(400, function () { $(this).remove(); });
+                    $("#totalActual").text(fmt(data.nuevoTotal));
+
+                    // Mostrar toast visual
+                    mostrarToastEliminar();
+                },
+                error: function (xhr) {
+                    alert("❌ Error al eliminar: " + (xhr.responseText || "Sin detalles"));
+                }
+            });
+        });
+
+
+
             //  BOTONES + / − PARA CANTIDAD
-            
+
             $(document).on("click", ".btn-mas", function () {
                 const detalleId = $(this).data("detalle-id");
                 const input = $(`input[data-detalle-id='${detalleId}']`);
@@ -539,105 +660,136 @@ else
 
 
 
-            // =================== CIERRE DE CUENTA ===================
-                   
-            $('#btnCerrarCuenta').on('click', function () {
-                const totalNum = toNumber($('#totalActual').text());
-                $('#totalPago').val(totalNum.toFixed(2));
-                $('#montoPagado').val('');
-                $('#vuelto').val('');
-                $('#metodoPago').val('Efectivo');
-                $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
-            });
+        // =================== CIERRE DE CUENTA ===================
+
+             $('#btnCerrarCuenta').on('click', function () {
+                 const totalNum = toNumber($('#totalActual').text());
+                 $('#totalPago').val(totalNum.toFixed(2));
+                 $('#montoPagado').val('');
+                 $('#vuelto').val('');
+                 $('#metodoPago').val('Efectivo');
+                 $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+             });
 
 
-            // Al escribir efectivo o usar botones, recalcular vuelto
-            function recalcularVuelto() {
-                const metodo = $('#metodoPago').val();
-                if (metodo === 'Efectivo') {
-                    const total = toNumber($('#totalPago').val());
-                    const pagado = toNumber($('#montoPagado').val());
-                    const vuelto = pagado - total;
-                    $('#vuelto').val(vuelto > 0 ? vuelto.toFixed(2) : '0.00');
-                } else {
-                    $('#vuelto').val('0.00');
-                }
-            }
+             // Al escribir efectivo o usar botones, recalcular vuelto
+                     function recalcularVuelto() {
+            const metodo = $('#metodoPago').val();
+            const total = toNumber($('#totalPago').val());
+            const pagado = toNumber($('#montoPagado').val());
 
-            $('#montoPagado').on('input', recalcularVuelto);
+            if (metodo === 'Efectivo') {
+                const diferencia = pagado - total;
+                const $vuelto = $('#vuelto');
 
-            // Cambiar comportamiento según método de pago
-            $('#metodoPago').on('change', function () {
-                const metodo = $(this).val();
-
-                if (metodo === 'Tarjeta') {
-                $('#grpMonto, #grpVuelto, #cashButtons').addClass('d-none');
-                $('#montoPagado').val($('#totalPago').val());
-                $('#vuelto').val('0.00');
-            } else {
-                $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
-                $('#montoPagado').val('');
-                $('#vuelto').val('');
-            }
-
-            });
-
-            // Botones rápidos de efectivo
-            $(document).on('click', '.btn-cash', function () {
-                const add = toNumber($(this).data('amount'));
-                const actual = toNumber($('#montoPagado').val());
-                const nuevo = actual + add;
-                $('#montoPagado').val(nuevo).trigger('input');
-            });
-
-            $('#btnLimpiarMonto').on('click', function () {
-                $('#montoPagado').val('').trigger('input');
-            });
-
-            // Confirmar pago
-            $('#btnConfirmarPago').on('click', function () {
-                const metodo = $('#metodoPago').val();
-
-                const totalNum   = toNumber($('#totalPago').val());
-                let montoPagado  = toNumber($('#montoPagado').val());
-                let vuelto       = toNumber($('#vuelto').val());
-
-                // En tarjeta no se pide monto: igualamos al total
-                if (metodo === 'Tarjeta') {
-                    montoPagado = totalNum;
-                    vuelto = 0;
-                }
-
-                if (metodo === 'Efectivo' && (isNaN(montoPagado) || montoPagado < totalNum)) {
-                    alert('El monto pagado no puede ser menor al total.');
+                if (pagado === 0) {
+                    $vuelto.val('');
+                    $vuelto.removeClass('is-valid is-invalid');
                     return;
                 }
 
-                $.ajax({
-                    url: `/POS/Detalles/${cuentaId}?handler=CerrarCuenta`,
-                    type: 'POST',
-                    headers: { "RequestVerificationToken": token },
-                    data: {
-                        metodoPago: metodo,
-                        montoPagado: montoPagado.toFixed(2),
-                        vuelto: vuelto.toFixed(2)
-                    },
-                    success: function () {
-                        alert('✅ Cuenta cerrada correctamente.');
-                        window.location.href = '/POS/Index'; // 🔁 redirige a la lista principal
-                    },
-                    error: function (xhr) {
-                        alert('❌ Error al cerrar la cuenta.\n' + (xhr.responseText || ''));
-                    }
-                });
-            });
+                if (diferencia < 0) {
+                    const falta = Math.abs(diferencia);
+                    $vuelto.val(`Faltan ₡${falta.toFixed(2)}`);
+                    $vuelto.removeClass('is-valid').addClass('is-invalid'); // rojo
+                } else {
+                    $vuelto.val(`₡${diferencia.toFixed(2)}`);
+                    $vuelto.removeClass('is-invalid').addClass('is-valid'); // verde
+                }
+            } else {
+                $('#vuelto').val('₡0.00').removeClass('is-valid is-invalid');
+            }
+        }
+
+
+             $('#montoPagado').on('input', recalcularVuelto);
+
+             // Cambiar comportamiento según método de pago
+             $('#metodoPago').on('change', function () {
+                 const metodo = $(this).val();
+
+                 if (metodo === 'Tarjeta') {
+                 $('#grpMonto, #grpVuelto, #cashButtons').addClass('d-none');
+                 $('#montoPagado').val($('#totalPago').val());
+                 $('#vuelto').val('0.00');
+             } else {
+                 $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+                 $('#montoPagado').val('');
+                 $('#vuelto').val('');
+             }
+
+             });
+
+             // Botones rápidos de efectivo
+             $(document).on('click', '.btn-cash', function () {
+                 const add = toNumber($(this).data('amount'));
+                 const actual = toNumber($('#montoPagado').val());
+                 const nuevo = actual + add;
+                 $('#montoPagado').val(nuevo).trigger('input');
+             });
+
+             $('#btnLimpiarMonto').on('click', function () {
+                 $('#montoPagado').val('').trigger('input');
+             });
+
+             // Confirmar pago
+             $('#btnConfirmarPago').on('click', function () {
+                 const metodo = $('#metodoPago').val();
+
+                 const totalNum   = toNumber($('#totalPago').val());
+                 let montoPagado  = toNumber($('#montoPagado').val());
+                 let vuelto       = toNumber($('#vuelto').val());
+
+                 // En tarjeta no se pide monto: igualamos al total
+                 if (metodo === 'Tarjeta') {
+                     montoPagado = totalNum;
+                     vuelto = 0;
+                 }
+
+                 if (metodo === 'Efectivo' && (isNaN(montoPagado) || montoPagado < totalNum)) {
+                     alert('El monto pagado no puede ser menor al total.');
+                     return;
+                 }
+
+                 $.ajax({
+                     url: `/POS/Detalles/${cuentaId}?handler=CerrarCuenta`,
+                     type: 'POST',
+                     headers: { "RequestVerificationToken": token },
+                     data: {
+                         metodoPago: metodo,
+                         montoPagado: montoPagado.toFixed(2),
+                         vuelto: vuelto.toFixed(2)
+                     },
+                                     success: function () {
+             // Cerrar el modal de pago
+             const modalEl = document.getElementById('modalPago');
+             const modal = bootstrap.Modal.getInstance(modalEl);
+             modal.hide();
+
+             // 🔹 Mostrar fondo verde parpadeante
+             document.body.classList.add("flash-green");
+
+             // 🔹 Mostrar mensaje grande en el centro
+             const msg = document.getElementById("mensajePagoExitoso");
+             msg.style.display = "block";
+
+             // 🔹 Ocultar mensaje y quitar efecto tras unos segundos
+             setTimeout(() => {
+                 msg.style.display = "none";
+                 document.body.classList.remove("flash-green");
+                 window.location.href = '/POS/Index';
+             }, 2500);
+         },
+
+
+                     error: function (xhr) {
+                         alert('❌ Error al cerrar la cuenta.\n' + (xhr.responseText || ''));
+                     }
+                 });
+             });
 
 
 
-        }); 
+         });
     </script>
 }
-
-
-
-

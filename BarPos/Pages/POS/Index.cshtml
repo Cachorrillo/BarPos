@@ -6,16 +6,14 @@
 
 <h2 class="text-center mb-4">🧾 Cuentas Abiertas</h2>
 
-<div class="mb-3">
+<div class="mb-3 d-flex justify-content-between">
     <a asp-page="Create" class="btn btn-success">
         <i class="bi bi-plus-circle"></i> Nueva Cuenta
     </a>
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalCerrarCaja">
+        <i class="bi bi-calculator"></i> Cerrar Caja
+    </button>
 </div>
-
-
-
-
-
 
 @if (Model.CuentasAbiertas.Count == 0)
 {
@@ -49,11 +47,270 @@ else
                            class="btn btn-outline-primary btn-sm">
                             Ver / Cerrar cuenta
                         </a>
-
-
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+}
+
+<!-- Modal Cerrar Caja -->
+<div class="modal fade" id="modalCerrarCaja" tabindex="-1" aria-labelledby="modalCerrarCajaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalCerrarCajaLabel">
+                    <i class="bi bi-calculator"></i> Resumen de Caja
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Selector de fecha -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label for="fechaCaja" class="form-label fw-bold">Fecha:</label>
+                        <input type="date" id="fechaCaja" class="form-control" />
+                    </div>
+                </div>
+
+                <!-- Área de carga -->
+                <div id="loadingCaja" class="text-center d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2">Generando resumen...</p>
+                </div>
+
+                <!-- Área de resultados -->
+                <div id="resultadoCaja" class="d-none">
+                    <!-- Resumen General -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-center border-primary">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">Total Cuentas</h6>
+                                    <h3 class="text-primary" id="totalCuentas">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center border-success">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">Total Ventas</h6>
+                                    <h3 class="text-success" id="totalVentas">₡0.00</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center border-info">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">Efectivo</h6>
+                                    <h3 class="text-info" id="ventasEfectivo">₡0.00</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center border-warning">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">Tarjeta</h6>
+                                    <h3 class="text-warning" id="ventasTarjeta">₡0.00</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Productos más y menos vendidos -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">📈 Productos Más Vendidos (Top 5)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Presentación</th>
+                                                <th>Cantidad</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaMasVendidos">
+                                            <tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">📉 Productos Menos Vendidos (Top 5)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Presentación</th>
+                                                <th>Cantidad</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaMenosVendidos">
+                                            <tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div id="errorCaja" class="alert alert-warning d-none" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> <span id="mensajeError"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" id="btnImprimirResumen" class="btn btn-primary d-none">
+                    <i class="bi bi-printer"></i> Imprimir Resumen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const fmt = (v) => (Number(v) || 0).toLocaleString("es-CR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Establecer fecha de hoy por defecto
+            const hoy = new Date().toISOString().split('T')[0];
+            $('#fechaCaja').val(hoy);
+
+            // Al abrir el modal, consultar automáticamente
+            $('#modalCerrarCaja').on('shown.bs.modal', function () {
+                consultarResumen();
+            });
+
+            // Al cambiar la fecha, actualizar automáticamente
+            $('#fechaCaja').on('change', function () {
+                consultarResumen();
+            });
+
+            // Función para consultar resumen
+            function consultarResumen() {
+                const fecha = $('#fechaCaja').val();
+
+                console.log('Consultando resumen para fecha:', fecha);
+
+                if (!fecha) {
+                    alert('Por favor selecciona una fecha.');
+                    return;
+                }
+
+                // Mostrar loading
+                $('#loadingCaja').removeClass('d-none');
+                $('#resultadoCaja').addClass('d-none');
+                $('#errorCaja').addClass('d-none');
+                $('#btnImprimirResumen').addClass('d-none');
+
+                $.ajax({
+                    url: '/POS/Index?handler=ResumenCaja',
+                    type: 'GET',
+                    data: { fecha: fecha },
+                    success: function (data) {
+                        console.log('Respuesta del servidor:', data);
+                        $('#loadingCaja').addClass('d-none');
+
+                        if (!data.success) {
+                            $('#errorCaja').removeClass('d-none');
+                            $('#mensajeError').text(data.message);
+                            return;
+                        }
+
+                        // Mostrar resumen
+                        $('#totalCuentas').text(data.totalCuentas);
+                        $('#totalVentas').text('₡' + fmt(data.totalVentas));
+                        $('#ventasEfectivo').text('₡' + fmt(data.ventasEfectivo));
+                        $('#ventasTarjeta').text('₡' + fmt(data.ventasTarjeta));
+
+                        // Llenar tabla de más vendidos
+                        const tbodyMas = $('#tablaMasVendidos');
+                        tbodyMas.empty();
+                        if (data.productosMasVendidos.length === 0) {
+                            tbodyMas.append('<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>');
+                        } else {
+                            data.productosMasVendidos.forEach(p => {
+                                tbodyMas.append(`
+                                    <tr>
+                                        <td>${p.nombreProducto}</td>
+                                        <td>${p.presentacion || '-'}</td>
+                                        <td class="text-center">${p.cantidadVendida}</td>
+                                        <td class="text-end">₡${fmt(p.totalVentas)}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+
+                        // Llenar tabla de menos vendidos
+                        const tbodyMenos = $('#tablaMenosVendidos');
+                        tbodyMenos.empty();
+                        if (data.productosMenosVendidos.length === 0) {
+                            tbodyMenos.append('<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>');
+                        } else {
+                            data.productosMenosVendidos.forEach(p => {
+                                tbodyMenos.append(`
+                                    <tr>
+                                        <td>${p.nombreProducto}</td>
+                                        <td>${p.presentacion || '-'}</td>
+                                        <td class="text-center">${p.cantidadVendida}</td>
+                                        <td class="text-end">₡${fmt(p.totalVentas)}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+
+                        $('#resultadoCaja').removeClass('d-none');
+                        $('#btnImprimirResumen').removeClass('d-none');
+                    },
+                    error: function (xhr) {
+                        console.error('Error en la petición:', xhr);
+                        $('#loadingCaja').addClass('d-none');
+                        $('#errorCaja').removeClass('d-none');
+                        $('#mensajeError').text('Error al cargar el resumen: ' + (xhr.responseText || 'Sin detalles'));
+                    }
+                });
+            }
+
+            // Imprimir resumen
+            $('#btnImprimirResumen').on('click', function () {
+                window.print();
+            });
+        });
+    </script>
+
+    <style>
+        @@media print {
+            .modal-header, .modal-footer, .btn, nav {
+                display: none !important;
+            }
+
+            .modal-dialog {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .modal-content {
+                border: none !important;
+            }
+        }
+    </style>
 }

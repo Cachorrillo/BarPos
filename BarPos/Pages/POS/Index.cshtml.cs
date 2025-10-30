@@ -42,6 +42,89 @@ namespace BarPos.Pages.POS
 
             return RedirectToPage();
         }
+        public async Task<JsonResult> OnGetResumenCajaAsync(string fecha)
+        {
+            // Si no se proporciona fecha, usar hoy
+            DateTime fechaConsulta;
+            if (string.IsNullOrEmpty(fecha) || !DateTime.TryParse(fecha, out fechaConsulta))
+            {
+                fechaConsulta = DateTime.Today;
+            }
+            else
+            {
+                fechaConsulta = fechaConsulta.Date;
+            }
+            var fechaFin = fechaConsulta.AddDays(1);
 
+            // Obtener todas las cuentas cerradas del día
+            var cuentasDia = await _context.Cuentas
+                .Include(c => c.DetalleCuenta)
+                    .ThenInclude(d => d.Producto)
+                .Include(c => c.DetalleCuenta)
+                    .ThenInclude(d => d.Presentacion)
+                        .ThenInclude(p => p.Producto)
+                .Where(c => c.Estado == "Cerrada"
+                    && c.FechaApertura >= fechaConsulta
+                    && c.FechaApertura < fechaFin)
+                .ToListAsync();
+
+            if (cuentasDia.Count == 0)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    message = "No hay ventas registradas para esta fecha."
+                });
+            }
+
+            // Calcular totales por método de pago
+            var ventasEfectivo = cuentasDia
+                .Where(c => c.MetodoPago == "Efectivo")
+                .Sum(c => c.Total);
+
+            var ventasTarjeta = cuentasDia
+                .Where(c => c.MetodoPago == "Tarjeta")
+                .Sum(c => c.Total);
+
+            // Agrupar productos vendidos
+            var productosVendidos = cuentasDia
+                .SelectMany(c => c.DetalleCuenta)
+                .GroupBy(d => new
+                {
+                    ProductoId = d.ProductoId ?? d.Presentacion.ProductoId,
+                    NombreProducto = d.Producto?.Nombre ?? d.Presentacion?.Producto?.Nombre ?? "Desconocido",
+                    Presentacion = d.Presentacion?.Nombre
+                })
+                .Select(g => new ProductoVendido
+                {
+                    NombreProducto = g.Key.NombreProducto,
+                    Presentacion = g.Key.Presentacion,
+                    CantidadVendida = g.Sum(d => d.Cantidad),
+                    TotalVentas = g.Sum(d => d.Cantidad * d.PrecioUnitario)
+                })
+                .OrderByDescending(p => p.CantidadVendida)
+                .ToList();
+
+            // Top 5 más vendidos y 5 menos vendidos
+            var masVendidos = productosVendidos.Take(5).ToList();
+            var menosVendidos = productosVendidos
+                .OrderBy(p => p.CantidadVendida)
+                .Take(5)
+                .ToList();
+
+            var resumen = new
+            {
+                success = true,
+                fecha = fechaConsulta.ToString("dd/MM/yyyy"),
+                totalCuentas = cuentasDia.Count,
+                totalVentas = cuentasDia.Sum(c => c.Total),
+                ventasEfectivo = ventasEfectivo,
+                ventasTarjeta = ventasTarjeta,
+                productosMasVendidos = masVendidos,
+                productosMenosVendidos = menosVendidos
+            };
+
+            return new JsonResult(resumen);
+        }
     }
 }
