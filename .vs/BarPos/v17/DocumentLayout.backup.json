@@ -1,50 +1,10 @@
 {
   "Version": 1,
-<<<<<<< HEAD
   "WorkspaceRootPath": "C:\\Users\\victo\\source\\repos\\BarPos\\",
   "Documents": [
     {
       "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-=======
-  "WorkspaceRootPath": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\pos\\detalles.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\detalles.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\productos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\productos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\pos\\detalles.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\detalles.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\models\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\models\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\pos\\cuentasabiertas.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\cuentasabiertas.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\productos\\index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\productos\\index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\productos\\create.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\productos\\create.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\productos\\edit.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\productos\\edit.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\usuario\\source\\repos\\barpos1\\barpos\\pages\\productos\\delete.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\productos\\delete.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
->>>>>>> cb6e335011b8f794229c64609f8f31d91ee26c00
     }
   ],
   "DocumentGroupContainers": [
@@ -54,11 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-<<<<<<< HEAD
           "SelectedChildIndex": 6,
-=======
-          "SelectedChildIndex": 9,
->>>>>>> cb6e335011b8f794229c64609f8f31d91ee26c00
           "Children": [
             {
               "$type": "Bookmark",
@@ -85,7 +41,6 @@
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
             },
             {
-<<<<<<< HEAD
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "appsettings.json",
@@ -93,125 +48,10 @@
               "RelativeDocumentMoniker": "BarPos\\appsettings.json",
               "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\appsettings.json",
               "RelativeToolTip": "BarPos\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-30T19:42:30.854Z",
+              "WhenOpened": "2025-11-01T00:03:26.705Z",
               "EditorCaption": ""
-=======
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Producto.cs",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Models\\Producto.cs",
-              "RelativeDocumentMoniker": "BarPos\\Models\\Producto.cs",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Models\\Producto.cs",
-              "RelativeToolTip": "BarPos\\Models\\Producto.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAswBIAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:27:20.577Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Index.cshtml",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\Productos\\Index.cshtml",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Index.cshtml",
-              "RelativeToolTip": "BarPos\\Pages\\Productos\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAALAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-28T21:23:44.058Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Detalles.cshtml",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\POS\\Detalles.cshtml",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Detalles.cshtml",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\POS\\Detalles.cshtml",
-              "RelativeToolTip": "BarPos\\Pages\\POS\\Detalles.cshtml",
-              "ViewState": "AgIAAIsDAAAAAAAAAAAAAGcDAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-28T21:23:24.408Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Detalles.cshtml.cs",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\POS\\Detalles.cshtml.cs",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Detalles.cshtml.cs",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\POS\\Detalles.cshtml.cs",
-              "RelativeToolTip": "BarPos\\Pages\\POS\\Detalles.cshtml.cs",
-              "ViewState": "AgIAAE8BAAAAAAAAAAAmwGsBAABKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:18:36.749Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "CuentasAbiertas.cshtml.cs",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\POS\\CuentasAbiertas.cshtml.cs",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\CuentasAbiertas.cshtml.cs",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\POS\\CuentasAbiertas.cshtml.cs",
-              "RelativeToolTip": "BarPos\\Pages\\POS\\CuentasAbiertas.cshtml.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:18:26.644Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Index.cshtml.cs",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Index.cshtml.cs",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\Productos\\Index.cshtml.cs",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Index.cshtml.cs",
-              "RelativeToolTip": "BarPos\\Pages\\Productos\\Index.cshtml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:17:25.21Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Delete.cshtml.cs",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Delete.cshtml.cs",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\Productos\\Delete.cshtml.cs",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Delete.cshtml.cs",
-              "RelativeToolTip": "BarPos\\Pages\\Productos\\Delete.cshtml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:15:53.966Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Edit.cshtml.cs",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Edit.cshtml.cs",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\Productos\\Edit.cshtml.cs",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Edit.cshtml.cs",
-              "RelativeToolTip": "BarPos\\Pages\\Productos\\Edit.cshtml.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAgwEEAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:15:32.421Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Create.cshtml.cs",
-              "DocumentMoniker": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Create.cshtml.cs",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\Productos\\Create.cshtml.cs",
-              "ToolTip": "C:\\Users\\Usuario\\source\\repos\\BarPos1\\BarPos\\Pages\\Productos\\Create.cshtml.cs",
-              "RelativeToolTip": "BarPos\\Pages\\Productos\\Create.cshtml.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAA5wAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:15:11.087Z"
->>>>>>> cb6e335011b8f794229c64609f8f31d91ee26c00
             }
           ]
         }
