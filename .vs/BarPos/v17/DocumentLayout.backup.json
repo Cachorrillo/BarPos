@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\victo\\source\\repos\\BarPos\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\pages\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\pages\\pos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\pages\\pos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|c:\\users\\victo\\source\\repos\\barpos\\barpos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{36183EBC-2090-408C-8EA0-DB385E8AD5BE}|BarPos\\BarPos.csproj|solutionrelative:barpos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,28 +42,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Index.cshtml",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\POS\\Index.cshtml",
-              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\POS\\Index.cshtml",
-              "RelativeToolTip": "BarPos\\Pages\\POS\\Index.cshtml",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAsAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-23T02:17:06.015Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "BarPos\\Pages\\Shared\\_Layout.cshtml",
-              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\Pages\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "BarPos\\Pages\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADUAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-23T01:45:41.011Z",
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\appsettings.json",
+              "RelativeDocumentMoniker": "BarPos\\appsettings.json",
+              "ToolTip": "C:\\Users\\victo\\source\\repos\\BarPos\\BarPos\\appsettings.json",
+              "RelativeToolTip": "BarPos\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-10-30T19:42:30.854Z",
               "EditorCaption": ""
             }
           ]
