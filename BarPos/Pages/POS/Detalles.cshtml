@@ -1,24 +1,25 @@
-﻿@page "{id:long}"
-@model BarPos.Pages.POS.DetallesModel
+﻿@page "{id:long}"   // Indica que esta página recibe un parámetro "id" de tipo long en la URL
+@model BarPos.Pages.POS.DetallesModel // Vincula esta vista con el modelo DetallesModel (del lado del servidor)
 @{
-    ViewData["Title"] = "Detalle de Cuenta";
+    ViewData["Title"] = "Detalle de Cuenta";// Asigna el título de la página que se mostrará en el navegador
 }
 
-<h2 class="text-center mb-4">🧾 Detalle de Cuenta - @Model.Cuenta.NombreCliente</h2>
+<h2 class="text-center mb-4">🧾 Detalle de Cuenta - @Model.Cuenta.NombreCliente</h2> <!-- Muestra titulo con nombre del cliente -->
 
+<!-- Crea formularios invisibles para incluir un token antifalsificacion, este token se usa en los AJAX para validar peticiones-->
 <form id="antiForgery" method="post">
     @Html.AntiForgeryToken()
 </form>
 <form id="antiForgery" method="post">@Html.AntiForgeryToken()</form>
 
-
+<!-- Si hay error, se muestra en cuadro de advertencia-->
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-warning text-center fw-bold">
         ⚠️ @TempData["Error"]
     </div>
 }
-
+ <!-- Botones para volver a la pagina principal o agregar productos-->
 <div class="d-flex justify-content-between mb-3">
     <a asp-page="Index" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Volver al POS
@@ -28,13 +29,13 @@
     </button>
 </div>
 
-@if (Model.Detalles.Count == 0)
+@if (Model.Detalles.Count == 0) // Si no hay detalles, muestra mensaje
 {
     <div class="alert alert-info text-center">
         No hay productos en esta cuenta.
     </div>
 }
-else
+else // Si hay detalless, muestra tabla con productos
 {
     <table class="table table-striped table-bordered text-center align-middle">
         <thead class="table-dark">
@@ -44,48 +45,61 @@ else
                 <th>Cantidad</th>
                 <th>Precio Unitario (₡)</th>
                 <th>Subtotal (₡)</th>
-                <th>Acciones</th> <!--  NUEVA COLUMNA -->
+                <th>Acciones</th> 
             </tr>
         </thead>
         <tbody>
             @foreach (var d in Model.Detalles)
             {
-                <tr id="row-@d.Id">
+                var stockMax = Model.StockDisponible.ContainsKey(d.Id) ? Model.StockDisponible[d.Id] : 999; // Obtiene el stock máximo disponible para el detalle actual
+                <!-- Muestra el nombre del producto o desconocido si falta informacion-->
+                <tr id="row-@d.Id" data-stock-max="@stockMax">
                     <td>@(d.Producto?.Nombre ?? d.Presentacion?.Producto?.Nombre ?? "Desconocido")</td>
                     <td>@(d.Presentacion?.Nombre ?? "-")</td>
                     <td>
-                        <div class="input-group input-group-sm justify-content-center" style="max-width: 140px;">
+                        <!-- Botón menos -->
+                        <div class="input-group input-group-sm justify-content-center" style="max-width: 160px;">
                             <button type="button"
                                     class="btn btn-outline-secondary qty-btn btn-menos"
                                     data-detalle-id="@d.Id"
                                     aria-label="Disminuir">
                                 −
                             </button>
-
+                            <!-- Campo numérico -->
                             <input type="number"
                                    class="form-control text-center cantidad-input"
                                    value="@d.Cantidad"
-                                   min="1" step="1"
-                                   inputmode="numeric" pattern="[0-9]*"
-                                   data-detalle-id="@d.Id" />
+                                   min="1"
+                                   max="@stockMax"
+                                   step="1"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-detalle-id="@d.Id"
+                                   data-stock-max="@stockMax" />
 
+                                   <!-- Botón más -->
                             <button type="button"
-                                    class="btn btn-outline-secondary qty-btn btn-mas"
+                                    class="btn btn-outline-secondary qty-btn btn-mas @(d.Cantidad >= stockMax ? "btn-danger" : "")"
                                     data-detalle-id="@d.Id"
+                                    data-stock-max="@stockMax"
+                                    @(d.Cantidad >= stockMax ? "disabled" : "")
                                     aria-label="Aumentar">
                                 +
                             </button>
                         </div>
+                        <small class="text-muted d-block mt-1">Stock: @stockMax</small>
                     </td>
-
-
+                    <!--Muestra el precio unitario y el subtotal(precio * cantidad)-->
                     <td class="pu">@d.PrecioUnitario.ToString("N2")</td>
-                    <td class="st">@((d.PrecioUnitario * d.Cantidad).ToString("N2"))</td>
+                    <td class="st">@((d.PrecioUnitario * d.Cantidad).ToString("N2"))</td> <!--Formato ToString da dos decimales-->
                     <td>
+                        <!--Boton actualizar cantidad
                         <button class="btn btn-sm btn-outline-success btn-actualizar me-1"
                                 data-detalle-id="@d.Id" title="Actualizar cantidad">
                             <i class="bi bi-check-circle"></i>
-                        </button>
+                        </button>-->
+
+                        <!--Boton eliminar producto-->
                         <button class="btn btn-sm btn-outline-danger btn-eliminar"
                                 data-detalle-id="@d.Id" title="Eliminar producto">
                             <i class="bi bi-trash"></i>
@@ -93,6 +107,7 @@ else
                     </td>
                 </tr>
             }
+        
 
             <!-- Modal de confirmación para eliminar producto -->
             <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
@@ -124,7 +139,6 @@ else
     <div class="text-end fw-bold fs-5">
         Total: ₡<span id="totalActual">@Model.Cuenta.Total.ToString("N2")</span>
     </div>
-
 }
 
 <!-- Botón para cerrar cuenta -->
@@ -267,21 +281,25 @@ else
     </div>
 </div>
 
-<!-- Modal de confirmación para eliminar producto -->
-<div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="modalConfirmarEliminar" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-danger">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="modalEliminarLabel">Eliminar producto</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center">
-                <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
-                <p class="mt-3 fs-5">¿Seguro que deseas eliminar este producto del pedido?</p>
-                <input type="hidden" id="detalleIdEliminar" />
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash3 text-danger" style="font-size: 4rem;"></i>
+                <h5 class="mt-3">¿Eliminar este producto del pedido?</h5>
+                <p class="text-muted">Esta acción no se puede deshacer</p>
             </div>
             <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> Cancelar
+                </button>
                 <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">
                     <i class="bi bi-trash"></i> Eliminar
                 </button>
@@ -290,19 +308,10 @@ else
     </div>
 </div>
 
-
-<!-- Toast de confirmación de pago -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
-    <div id="toastPago" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fw-bold">
-                💰 Pago completado con éxito.
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
-        </div>
-    </div>
+<!-- Mensaje de pago exitoso -->
+<div id="mensajePagoExitoso" style="display: none;">
+    <i class="bi bi-check-circle-fill"></i> Pago completado con éxito
 </div>
-
 <style>
     /* Fondo verde parpadeante */
     @@keyframes flashGreen {
@@ -362,89 +371,123 @@ else
 @section Scripts {
     <script>
         $(document).ready(function () {
-
-            const cuentaId = @Model.Cuenta.Id;
-            const token = $('#antiForgery input[name="__RequestVerificationToken"]').val();
+            const cuentaId = @Model.Cuenta.Id;// Obtiene el ID de la cuenta actual del modelo Razor
+            const token = $('#antiForgery input[name="__RequestVerificationToken"]').val();// Token antifalsificación
             const fmt = (v) => (Number(v) || 0).toLocaleString("es-CR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+            // Función auxiliar para formatear números con dos decimales y estilo costarricense (₡)
             let categoriaSeleccionada = "";
             let productosEnCarrito = [];
             let productoTemporal = null;
+            let stockDisponiblePorProducto = {};
 
-            //  Toast visual
-            function mostrarToast(nombreProducto) {
-                const toastEl = document.getElementById('toastAgregado');
-                toastEl.querySelector('.toast-body').textContent = `✅ ${nombreProducto} agregado al carrito.`;
-                const toast = new bootstrap.Toast(toastEl);
-                toast.show();
-            }
-
-
-
-
-
-
-            // 🔹 CARGA DE CATEGORÍAS Y PRODUCTOS
+            // =================== MODAL DE AGREGAR PRODUCTOS ===================
 
             $(".categoria-btn").click(function () {
-                categoriaSeleccionada = $(this).data("nombre");
-                const categoriaId = $(this).data("id");
+                categoriaSeleccionada = $(this).data("nombre");// Guarda el nombre de la categoría seleccionada
+                const categoriaId = $(this).data("id");// Obtiene el ID de la categoría desde el botón
 
+                 // Estilo visual: resalta la categoría seleccionada
                 $(".categoria-btn").removeClass("btn-primary").addClass("btn-outline-primary");
                 $(this).removeClass("btn-outline-primary").addClass("btn-primary");
 
+                // Muestra mensaje mientras se cargan los productos
                 $("#contenedorProductos").html("<p class='text-muted text-center'>Cargando productos...</p>");
 
+                // Solicita productos de esa categoría al servidor
                 $.getJSON(`?handler=ProductosPorCategoria&categoriaId=${categoriaId}`, function (data) {
                     if (data.length === 0) {
+                         // Si no hay productos
                         $("#contenedorProductos").html("<p class='text-center text-danger'>No hay productos en esta categoría.</p>");
                         return;
                     }
 
-                    let html = "<div class='d-flex flex-wrap gap-2 justify-content-start'>";
+                    stockDisponiblePorProducto = {};// Limpia stock anterior
+                    let html = "<div class='d-flex flex-wrap gap-2 justify-content-start'>";// Contenedor de productos
+
+                     // Recorre los productos y genera botones para cada uno
                     $.each(data, function (i, producto) {
-                        html += `<button type="button" class="btn btn-outline-dark producto-btn"
-                                        data-id="${producto.id}" data-nombre="${producto.nombre}">
-                                        ${producto.nombre}
+                        stockDisponiblePorProducto[producto.id] = producto.stock; // Guarda stock
+                        stockDisponiblePorProducto[`nombre_${producto.id}`] = producto.nombre;
+
+                        const sinStock = producto.stock <= 0; // Verifica si el producto está agotado
+                        const disabledClass = sinStock ? 'disabled' : '';
+                        const stockBadge = sinStock
+                            ? '<span class="badge bg-danger ms-1">Sin stock</span>'
+                            : `<span class="badge bg-success ms-1" id="badge-${producto.id}">${producto.stock}</span>`;
+
+                            // Botón del producto con nombre y badge de stock
+                        html += `<button type="button"
+                                        class="btn btn-outline-dark producto-btn ${disabledClass}"
+                                        data-id="${producto.id}"
+                                        data-nombre="${producto.nombre}"
+                                        data-stock="${producto.stock}"
+                                        ${sinStock ? 'disabled' : ''}>
+                                        ${producto.nombre} ${stockBadge}
                                  </button>`;
                     });
                     html += "</div>";
-
+                    // Inserta todos los botones generados en el contenedor
                     $("#contenedorProductos").html(html);
-                    $("#seccionPresentaciones").hide();
+                    $("#seccionPresentaciones").hide(); // Oculta la sección de presentaciones (solo para licores)
                 });
             });
-
+            // Al hacer clic en un producto
             $(document).on("click", ".producto-btn", function () {
                 const productoId = $(this).data("id");
                 const nombre = $(this).data("nombre");
+                const stock = parseInt($(this).data("stock")) || 0;
                 const categoria = categoriaSeleccionada.toLowerCase();
                 const cantidad = parseInt($("#Cantidad").val()) || 1;
+                //si stock es menor que la cantidad seleccionada muestra una alerta
+                if (stock < cantidad) {
+                    alert(`⚠️ Stock insuficiente de "${nombre}". Solo hay ${stock} unidades disponibles.`);
+                    return;
+                }
 
                 $(".producto-btn").removeClass("btn-dark").addClass("btn-outline-dark");
                 $(this).removeClass("btn-outline-dark").addClass("btn-dark");
 
+                //Si el producto pertenece a la categoria licores se cargan las presentaciones
                 if (categoria === "licores") {
-                    productoTemporal = { productoId, nombre, cantidad };
+                    productoTemporal = { productoId, nombre, cantidad, stock };
                     $("#seccionPresentaciones").show();
                     $("#PresentacionId").html("<option>Cargando...</option>");
                     $.getJSON(`?handler=PresentacionesPorProducto&productoId=${productoId}`, function (data) {
                         $("#PresentacionId").empty().append('<option value="">-- Seleccione una presentación --</option>');
                         $.each(data, function (i, pres) {
-                            $("#PresentacionId").append(`<option value="${pres.id}">${pres.nombre} - ₡${pres.precioVenta.toFixed(2)}</option>`);
+                            const stockInfo = pres.stock > 0 ? `(Stock: ${pres.stock})` : '(Sin stock)';
+                            $("#PresentacionId").append(
+                                `<option value="${pres.id}" data-stock="${pres.stock}">
+                                    ${pres.nombre} - ₡${pres.precioVenta.toFixed(2)} ${stockInfo}
+                                </option>`
+                            );
                         });
                     });
                 } else {
-                    agregarAlCarrito({ productoId, presentacionId: null, nombre, presentacion: "-", cantidad });
+                    //Los productos que no son licores se agregan directamente al carrito
+                    agregarAlCarrito({
+                        productoId,
+                        presentacionId: null,
+                        nombre,
+                        presentacion: "-",
+                        cantidad,
+                        stock
+                    });
                 }
             });
-
+                    /*Cuando el usuario selecciona una presentación, se valida el stock disponible y se agrega el producto al carrito
+        luego se oculta la sección de presentaciones*/
             $("#PresentacionId").change(function () {
                 const presId = $(this).val();
                 const presTexto = $("#PresentacionId option:selected").text();
+                const stockPres = parseInt($("#PresentacionId option:selected").data("stock")) || 0;
 
-                if (!productoTemporal || !presId) {
-                    alert("⚠️ Debes seleccionar una presentación válida para el licor.");
+                if (!productoTemporal || !presId) return;
+
+                const cantidad = productoTemporal.cantidad;
+
+                if (stockPres < cantidad) {
+                    alert(`⚠️ Stock insuficiente. Solo hay ${stockPres} unidades de esta presentación.`);
                     return;
                 }
 
@@ -453,16 +496,80 @@ else
                     presentacionId: presId,
                     nombre: productoTemporal.nombre,
                     presentacion: presTexto,
-                    cantidad: productoTemporal.cantidad
+                    cantidad: cantidad,
+                    stock: stockPres
                 });
 
                 productoTemporal = null;
                 $("#seccionPresentaciones").hide();
             });
+            //Valida que si el producto es licor, se haya escogido una presentación válida
+            function agregarAlCarrito(item) {
+                if ((item.presentacionId === "" || item.presentacionId === null) && categoriaSeleccionada.toLowerCase() === "licores") {
+                    alert("⚠️ Debes seleccionar una presentación válida antes de agregar el licor.");
+                    return;
+                }
+                //Busca si el producto ya fue agregado con la misma presentación para sumarle cantidad en lugar de duplicarlo
+                const indiceExistente = productosEnCarrito.findIndex(p =>
+                    p.productoId === item.productoId &&
+                    ((p.presentacionId === item.presentacionId) ||
+                     (p.presentacionId === null && item.presentacionId === null))
+                );
 
+                //Controla que no se supere el stock y actualiza los valores internos.
+                if (indiceExistente !== -1) {
+                    const productoExistente = productosEnCarrito[indiceExistente];
+                    const nuevaCantidad = productoExistente.cantidad + item.cantidad;
+                    const stockActual = stockDisponiblePorProducto[item.productoId];
+                    const stockDisponibleReal = stockActual + productoExistente.cantidad;
 
-            // 🔹 CARRITO DE PRODUCTOS
+                    if (nuevaCantidad > stockDisponibleReal) {
+                        alert(`⚠️ No puedes agregar más. Stock disponible: ${stockDisponibleReal}`);
+                        return;
+                    }
 
+                    productosEnCarrito[indiceExistente].cantidad = nuevaCantidad;
+                    const nuevoStock = stockDisponiblePorProducto[item.productoId] - item.cantidad;
+                    stockDisponiblePorProducto[item.productoId] = nuevoStock;
+                    productosEnCarrito[indiceExistente].stockRestante = nuevoStock;
+
+                   //Refresca el contador visual de stock directamente en el botón
+                    $(`#badge-${item.productoId}`).text(nuevoStock);
+
+                    if (nuevoStock <= 0) {
+                        $(`.producto-btn[data-id='${item.productoId}']`)
+                            .prop('disabled', true)
+                            .addClass('disabled')
+                            .find('.badge')
+                            .removeClass('bg-success')
+                            .addClass('bg-danger')
+                            .text('Sin stock');
+                    }
+
+                    renderTabla();
+                    return;
+                }
+
+                const nuevoStock = stockDisponiblePorProducto[item.productoId] - item.cantidad;
+                stockDisponiblePorProducto[item.productoId] = nuevoStock;
+                $(`#badge-${item.productoId}`).text(nuevoStock);
+
+                if (nuevoStock <= 0) {
+                    $(`.producto-btn[data-id='${item.productoId}']`)
+                        .prop('disabled', true)
+                        .addClass('disabled')
+                        .find('.badge')
+                        .removeClass('bg-success')
+                        .addClass('bg-danger')
+                        .text('Sin stock');
+                }
+
+                item.stockRestante = nuevoStock;
+                productosEnCarrito.push(item);
+                renderTabla();
+            }
+
+            //Muestra todos los productos agregados al carrito en una tabla permitiendo ver cantidad y stock restante
             function renderTabla() {
                 const tbody = $("#tablaSeleccionados tbody");
                 tbody.empty();
@@ -474,28 +581,33 @@ else
                     tbody.append(`<tr>
                         <td>${p.nombre}</td>
                         <td>${p.presentacion}</td>
-                        <td>${p.cantidad}</td>
+                        <td>${p.cantidad} <small class="text-muted">(Stock: ${p.stockRestante})</small></td>
                         <td><button class='btn btn-sm btn-danger eliminar-item' data-index='${i}'>🗑</button></td>
                     </tr>`);
                 });
             }
 
-            function agregarAlCarrito(item) {
-                if (item.presentacionId === "" || item.presentacionId === null && categoriaSeleccionada.toLowerCase() === "licores") {
-                    alert("⚠️ Debes seleccionar una presentación válida antes de agregar el licor.");
-                    return;
-                }
-                productosEnCarrito.push(item);
-                renderTabla();
-                mostrarToast(item.nombre);
-            }
-
+            //Permite eliminar productos del carrito y restaurar el stock visualmente en los botones
             $(document).on("click", ".eliminar-item", function () {
                 const index = $(this).data("index");
+                const producto = productosEnCarrito[index];
+
+                stockDisponiblePorProducto[producto.productoId] += producto.cantidad;
+                const nuevoStock = stockDisponiblePorProducto[producto.productoId];
+                $(`#badge-${producto.productoId}`).text(nuevoStock);
+
+                $(`.producto-btn[data-id='${producto.productoId}']`)
+                    .prop('disabled', false)
+                    .removeClass('disabled')
+                    .find('.badge')
+                    .removeClass('bg-danger')
+                    .addClass('bg-success');
+
                 productosEnCarrito.splice(index, 1);
                 renderTabla();
             });
 
+            //Convierte los productos seleccionados en un JSON y los envía al servidor vía AJAX
             $("#btnGuardarTodo").click(function (e) {
                 e.preventDefault();
                 if (productosEnCarrito.length === 0) {
@@ -503,293 +615,316 @@ else
                     return;
                 }
 
-                const cuentaId = $("#CuentaId").val();
+                const productosParaEnviar = productosEnCarrito.map(p => ({
+                    productoId: p.productoId,
+                    presentacionId: p.presentacionId,
+                    cantidad: p.cantidad
+                }));
 
                 $.ajax({
                     url: `/POS/Detalles/${cuentaId}?handler=AgregarMultiples`,
                     method: "POST",
                     contentType: "application/json",
-                    data: JSON.stringify(productosEnCarrito),
+                    data: JSON.stringify(productosParaEnviar),
                     headers: { "RequestVerificationToken": token },
-                    success: function () {
-                        window.location.reload();
-                    },
-                    error: function (xhr) {
-                        alert("❌ Ocurrió un error al guardar.\n" + (xhr.responseText || "Sin detalles del servidor."));
-                    }
-                });
-            });
-
-
-            // ACTUALIZAR / ELIMINAR DETALLES EXISTENTES
-
-            $(document).on("click", ".btn-actualizar", function () {
-                const detalleId = $(this).data("detalle-id");
-                const nuevaCantidad = parseInt($(`input[data-detalle-id='${detalleId}']`).val(), 10);
-
-                if (!nuevaCantidad || nuevaCantidad < 1) {
-                    alert("⚠️ La cantidad debe ser al menos 1.");
-                    return;
-                }
-
-                $.ajax({
-                    url: `/POS/Detalles/${cuentaId}?handler=ActualizarDetalle`,
-                    method: "POST",
-                    contentType: "application/json",
-                    headers: { "RequestVerificationToken": token },
-                    data: JSON.stringify({ detalleId: detalleId, cantidad: nuevaCantidad }),
                     success: function (data) {
-                        if (!data || !data.success) {
-                            alert("⚠️ No se pudo actualizar. " + (data?.message ?? ""));
-                            return;
+                        if (data.success) {
+                            window.location.reload();
+                        } else if (data.errores && data.errores.length > 0) {
+                            let mensaje = "⚠️ No se pudieron agregar algunos productos:\n\n";
+                            data.errores.forEach(err => mensaje += `• ${err}\n`);
+                            alert(mensaje);
                         }
-                        $(`#row-${data.detalleId} td.st`).text(fmt(data.nuevoSubtotal));
-                        $("#totalActual").text(fmt(data.nuevoTotal));
                     },
+                    //Controla errores de stock o fallos en la base de datos y muestra alertas.
                     error: function (xhr) {
-                        alert("❌ Error al actualizar: " + (xhr.responseText || "Sin detalles"));
+                        alert("❌ Error al guardar.\n" + (xhr.responseText || ""));
                     }
                 });
             });
 
-                    let detalleAEliminar = null;
+            // =================== TABLA DE DETALLES (PRODUCTOS YA AGREGADOS) ===================
 
-        $(document).on("click", ".btn-eliminar", function () {
-            detalleAEliminar = $(this).data("detalle-id");
-            const modal = new bootstrap.Modal(document.getElementById("modalConfirmarEliminar"));
-            modal.show();
-        });
-
-        $("#btnConfirmarEliminar").on("click", function () {
-            if (!detalleAEliminar) return;
-
-            const detalleId = detalleAEliminar;
-            const cuentaId = @Model.Cuenta.Id;
-            const token = $('#antiForgery input[name="__RequestVerificationToken"]').val();
-
-            $.ajax({
-                url: `/POS/Detalles/${cuentaId}?handler=EliminarDetalle`,
-                method: "POST",
-                contentType: "application/json",
-                headers: { "RequestVerificationToken": token },
-                data: JSON.stringify({ detalleId: detalleId }),
-                success: function (data) {
-                    if (!data || !data.success) {
-                        alert("⚠️ No se pudo eliminar. " + (data?.message ?? ""));
-                        return;
-                    }
-
-                    // Cerrar modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById("modalConfirmarEliminar"));
-                    modal.hide();
-
-                    // Eliminar fila y actualizar total
-                    $(`#row-${data.detalleId}`).fadeOut(400, function () { $(this).remove(); });
-                    $("#totalActual").text(fmt(data.nuevoTotal));
-
-                    // Mostrar toast visual
-                    mostrarToastEliminar();
-                },
-                error: function (xhr) {
-                    alert("❌ Error al eliminar: " + (xhr.responseText || "Sin detalles"));
-                }
-            });
-        });
-
-
-
-            //  BOTONES + / − PARA CANTIDAD
-
+            // Incrementa la cantidad en 1 y valida que no supere el stock máximo.
             $(document).on("click", ".btn-mas", function () {
                 const detalleId = $(this).data("detalle-id");
                 const input = $(`input[data-detalle-id='${detalleId}']`);
+                const stockMax = parseInt($(this).data("stock-max")) || 999;
                 let cantidad = parseInt(input.val()) || 0;
-                input.val(++cantidad).trigger("change");
+
+                if (cantidad >= stockMax) {
+                    $(this).removeClass('btn-outline-secondary')
+                           .addClass('btn-danger')
+                           .prop('disabled', true);
+                    alert(`⚠️ Stock máximo alcanzado (${stockMax} unidades disponibles)`);
+                    return;
+                }
+
+                cantidad++;
+                input.val(cantidad);
+
+                if (cantidad >= stockMax) {
+                    $(this).removeClass('btn-outline-secondary')
+                           .addClass('btn-danger')
+                           .prop('disabled', true);
+                }
+
+                //Llama a la función actualizarCantidad para reflejar cambios en el servidor y actualizar subtotal y total.
+                actualizarCantidad(detalleId, cantidad);
             });
 
+            //Disminuye la cantidad hasta 1 y vuelve a habilitar el botón + si estaba deshabilitado.
             $(document).on("click", ".btn-menos", function () {
                 const detalleId = $(this).data("detalle-id");
                 const input = $(`input[data-detalle-id='${detalleId}']`);
                 let cantidad = parseInt(input.val()) || 0;
-                if (cantidad > 1) input.val(--cantidad).trigger("change");
+
+                if (cantidad > 1) {
+                    cantidad--;
+                    input.val(cantidad);
+
+                    const btnMas = $(`.btn-mas[data-detalle-id='${detalleId}']`);
+                    btnMas.removeClass('btn-danger')
+                          .addClass('btn-outline-secondary')
+                          .prop('disabled', false);
+
+                    //Llama a la función actualizarCantidad para reflejar cambios en el servidor y actualizar subtotal y total.
+                    actualizarCantidad(detalleId, cantidad);
+                }
             });
 
+            // Permite al usuario ingresar la cantidad manualmente validando el stock mínimo y máximo
             $(document).on("change", ".cantidad-input", function () {
                 const detalleId = $(this).data("detalle-id");
-                const nuevaCantidad = parseInt($(this).val()) || 1;
+                const stockMax = parseInt($(this).data("stock-max")) || 999;
+                let nuevaCantidad = parseInt($(this).val()) || 1;
 
+                if (nuevaCantidad > stockMax) {
+                    alert(`⚠️ Stock máximo: ${stockMax} unidades`);
+                    $(this).val(stockMax);
+                    nuevaCantidad = stockMax;
+                }
+
+                if (nuevaCantidad < 1) {
+                    $(this).val(1);
+                    nuevaCantidad = 1;
+                }
+
+                actualizarCantidad(detalleId, nuevaCantidad);
+            });
+
+            // 🔹 FUNCIÓN PARA ACTUALIZAR CANTIDAD actualiza el subtotal, total general y el stock disponible del producto
+            function actualizarCantidad(detalleId, cantidad) {
                 $.ajax({
                     url: `/POS/Detalles/${cuentaId}?handler=ActualizarDetalle`,
                     method: "POST",
                     contentType: "application/json",
                     headers: { "RequestVerificationToken": token },
-                    data: JSON.stringify({ detalleId: detalleId, cantidad: nuevaCantidad }),
+                    data: JSON.stringify({ detalleId: detalleId, cantidad: cantidad }),
                     success: function (data) {
                         if (data && data.success) {
                             $(`#row-${data.detalleId} td.st`).text(fmt(data.nuevoSubtotal));
                             $("#totalActual").text(fmt(data.nuevoTotal));
+
+                            // 🔹 Actualizar stock máximo si cambió
+                            if (data.stockDisponible) {
+                                const input = $(`input[data-detalle-id='${detalleId}']`);
+                                const btnMas = $(`.btn-mas[data-detalle-id='${detalleId}']`);
+
+                                input.attr('max', data.stockDisponible);
+                                input.attr('data-stock-max', data.stockDisponible);
+                                btnMas.attr('data-stock-max', data.stockDisponible);
+
+                                // Actualizar texto de stock
+                                $(`#row-${detalleId} small.text-muted`).text(`Stock: ${data.stockDisponible}`);
+
+                                // Estado del botón +
+                                if (cantidad >= data.stockDisponible) {
+                                    btnMas.removeClass('btn-outline-secondary')
+                                          .addClass('btn-danger')
+                                          .prop('disabled', true);
+                                } else {
+                                    btnMas.removeClass('btn-danger')
+                                          .addClass('btn-outline-secondary')
+                                          .prop('disabled', false);
+                                }
+                            }
+                        } else {
+                            alert("⚠️ " + (data?.message || "Error al actualizar"));
+                            // Revertir cambio
+                            location.reload();
                         }
                     },
-                    error: function () {
-                        alert("❌ Error al actualizar cantidad");
+                    error: function (xhr) {
+                        alert("❌ Error al actualizar: " + (xhr.responseText || ""));
+                        location.reload();
+                    }
+                });
+            }
+
+            /* 🔹 BOTÓN ACTUALIZAR MANUAL (por si se prefiere)
+            $(document).on("click", ".btn-actualizar", function () {
+                const detalleId = $(this).data("detalle-id");
+                const cantidad = parseInt($(`input[data-detalle-id='${detalleId}']`).val(), 10);
+
+                if (!cantidad || cantidad < 1) {
+                    alert("⚠️ La cantidad debe ser al menos 1.");
+                    return;
+                }
+
+                actualizarCantidad(detalleId, cantidad);
+            });*/
+
+            // 🔹 ELIMINAR PRODUCTO
+            let detalleAEliminar = null;
+
+            $(document).on("click", ".btn-eliminar", function () {
+                detalleAEliminar = $(this).data("detalle-id");
+                const modal = new bootstrap.Modal(document.getElementById("modalConfirmarEliminar"));
+                modal.show();
+            });
+
+            $("#btnConfirmarEliminar").on("click", function () {
+                if (!detalleAEliminar) return;
+
+                $.ajax({
+                    url: `/POS/Detalles/${cuentaId}?handler=EliminarDetalle`,
+                    method: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": token },
+                    data: JSON.stringify({ detalleId: detalleAEliminar }),
+                    success: function (data) {
+                        if (data && data.success) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById("modalConfirmarEliminar"));
+                            modal.hide();
+                            $(`#row-${data.detalleId}`).fadeOut(400, function () { $(this).remove(); });
+                            $("#totalActual").text(fmt(data.nuevoTotal));
+                        } else {
+                            alert("⚠️ " + (data?.message || "Error al eliminar"));
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("❌ Error: " + (xhr.responseText || ""));
                     }
                 });
             });
 
-             // =================== UTILIDAD PARA MONTOS ===================
-                    // Convierte "10,000.00", "10.000,00", "₡10 000", "10000" → 10000.00
+            // =================== CIERRE DE CUENTA ===================
+
+            //Convierte cualquier texto de monto a número decimal para cálculos.
             function toNumber(value) {
-                if (value === null || value === undefined) return 0;
-                let v = value.toString().trim();
-
-                // Quitar moneda y espacios
-                v = v.replace(/[₡\s]/g, '');
-
-                // Si tiene punto y coma: asumimos punto = decimal, coma = miles → borrar comas
-                if (v.includes('.') && v.includes(',')) {
-                    v = v.replace(/,/g, '');
-                }
-                // Si solo hay comas (formato latino), tratarlas como decimal
-                else if (v.includes(',') && !v.includes('.')) {
-                    v = v.replace(/\./g, '').replace(',', '.');
-                }
-
+                if (!value) return 0;
+                let v = value.toString().trim().replace(/[₡\s]/g, '');
+                if (v.includes('.') && v.includes(',')) v = v.replace(/,/g, '');
+                else if (v.includes(',') && !v.includes('.')) v = v.replace(/\./g, '').replace(',', '.');
                 const num = parseFloat(v.replace(/[^\d.-]/g, ''));
                 return isNaN(num) ? 0 : num;
             }
+            //totalPago se llena con el total de la cuenta, Se limpian campos
+            $('#btnCerrarCuenta').on('click', function () {
+                const totalNum = toNumber($('#totalActual').text());
+                $('#totalPago').val(totalNum.toFixed(2));
+                $('#montoPagado').val('');
+                $('#vuelto').val('');
+                $('#metodoPago').val('Efectivo');
+                $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+            });
+            //Si el método es efectivo, muestra si falta dinero o el vuelto a entregar
+            function recalcularVuelto() {
+                const metodo = $('#metodoPago').val();
+                const total = toNumber($('#totalPago').val());
+                const pagado = toNumber($('#montoPagado').val());
 
+                if (metodo === 'Efectivo') {
+                    const diferencia = pagado - total;
+                    const $vuelto = $('#vuelto');
 
+                    if (pagado === 0) {
+                        $vuelto.val('').removeClass('is-valid is-invalid');
+                        return;
+                    }
 
-        // =================== CIERRE DE CUENTA ===================
+                    if (diferencia < 0) {
+                        const falta = Math.abs(diferencia);
+                        $vuelto.val(`Faltan ₡${falta.toFixed(2)}`).removeClass('is-valid').addClass('is-invalid');
+                    } else {
+                        $vuelto.val(`₡${diferencia.toFixed(2)}`).removeClass('is-invalid').addClass('is-valid');
+                    }
+                } else {
+                    $('#vuelto').val('₡0.00').removeClass('is-valid is-invalid');
+                }
+            }
 
-             $('#btnCerrarCuenta').on('click', function () {
-                 const totalNum = toNumber($('#totalActual').text());
-                 $('#totalPago').val(totalNum.toFixed(2));
-                 $('#montoPagado').val('');
-                 $('#vuelto').val('');
-                 $('#metodoPago').val('Efectivo');
-                 $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
-             });
+            $('#montoPagado').on('input', recalcularVuelto);
+            //Si es tarjeta, siempre el vuelto es 0.
+            $('#metodoPago').on('change', function () {
+                const metodo = $(this).val();
+                if (metodo === 'Tarjeta') {
+                    $('#grpMonto, #grpVuelto, #cashButtons').addClass('d-none');
+                    $('#montoPagado').val($('#totalPago').val());
+                    $('#vuelto').val('0.00');
+                } else {
+                    $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+                    $('#montoPagado').val('');
+                    $('#vuelto').val('');
+                }
+            });
+            //Botón limpiar resetea el monto
+            $(document).on('click', '.btn-cash', function () {
+                const add = toNumber($(this).data('amount'));
+                const actual = toNumber($('#montoPagado').val());
+                $('#montoPagado').val(actual + add).trigger('input');
+            });
 
+            $('#btnLimpiarMonto').on('click', function () {
+                $('#montoPagado').val('').trigger('input');
+            });
 
-             // Al escribir efectivo o usar botones, recalcular vuelto
-                     function recalcularVuelto() {
-            const metodo = $('#metodoPago').val();
-            const total = toNumber($('#totalPago').val());
-            const pagado = toNumber($('#montoPagado').val());
+            $('#btnConfirmarPago').on('click', function () {
+                const metodo = $('#metodoPago').val();
+                const totalNum = toNumber($('#totalPago').val());
+                let montoPagado = toNumber($('#montoPagado').val());
+                let vuelto = toNumber($('#vuelto').val());
 
-            if (metodo === 'Efectivo') {
-                const diferencia = pagado - total;
-                const $vuelto = $('#vuelto');
+                if (metodo === 'Tarjeta') {
+                    montoPagado = totalNum;
+                    vuelto = 0;
+                }
 
-                if (pagado === 0) {
-                    $vuelto.val('');
-                    $vuelto.removeClass('is-valid is-invalid');
+                if (metodo === 'Efectivo' && (isNaN(montoPagado) || montoPagado < totalNum)) {
+                    alert('El monto pagado no puede ser menor al total.');
                     return;
                 }
 
-                if (diferencia < 0) {
-                    const falta = Math.abs(diferencia);
-                    $vuelto.val(`Faltan ₡${falta.toFixed(2)}`);
-                    $vuelto.removeClass('is-valid').addClass('is-invalid'); // rojo
-                } else {
-                    $vuelto.val(`₡${diferencia.toFixed(2)}`);
-                    $vuelto.removeClass('is-invalid').addClass('is-valid'); // verde
-                }
-            } else {
-                $('#vuelto').val('₡0.00').removeClass('is-valid is-invalid');
-            }
-        }
+                $.ajax({
+                    url: `/POS/Detalles/${cuentaId}?handler=CerrarCuenta`,
+                    type: 'POST',
+                    headers: { "RequestVerificationToken": token },
+                    data: {
+                        metodoPago: metodo,
+                        montoPagado: montoPagado.toFixed(2),
+                        vuelto: vuelto.toFixed(2)
+                    },
+                    success: function () {
+                        const modalEl = document.getElementById('modalPago');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        modal.hide();
 
+                        document.body.classList.add("flash-green");
+                        const msg = document.getElementById("mensajePagoExitoso");
+                        msg.style.display = "block";
 
-             $('#montoPagado').on('input', recalcularVuelto);
-
-             // Cambiar comportamiento según método de pago
-             $('#metodoPago').on('change', function () {
-                 const metodo = $(this).val();
-
-                 if (metodo === 'Tarjeta') {
-                 $('#grpMonto, #grpVuelto, #cashButtons').addClass('d-none');
-                 $('#montoPagado').val($('#totalPago').val());
-                 $('#vuelto').val('0.00');
-             } else {
-                 $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
-                 $('#montoPagado').val('');
-                 $('#vuelto').val('');
-             }
-
-             });
-
-             // Botones rápidos de efectivo
-             $(document).on('click', '.btn-cash', function () {
-                 const add = toNumber($(this).data('amount'));
-                 const actual = toNumber($('#montoPagado').val());
-                 const nuevo = actual + add;
-                 $('#montoPagado').val(nuevo).trigger('input');
-             });
-
-             $('#btnLimpiarMonto').on('click', function () {
-                 $('#montoPagado').val('').trigger('input');
-             });
-
-             // Confirmar pago
-             $('#btnConfirmarPago').on('click', function () {
-                 const metodo = $('#metodoPago').val();
-
-                 const totalNum   = toNumber($('#totalPago').val());
-                 let montoPagado  = toNumber($('#montoPagado').val());
-                 let vuelto       = toNumber($('#vuelto').val());
-
-                 // En tarjeta no se pide monto: igualamos al total
-                 if (metodo === 'Tarjeta') {
-                     montoPagado = totalNum;
-                     vuelto = 0;
-                 }
-
-                 if (metodo === 'Efectivo' && (isNaN(montoPagado) || montoPagado < totalNum)) {
-                     alert('El monto pagado no puede ser menor al total.');
-                     return;
-                 }
-
-                 $.ajax({
-                     url: `/POS/Detalles/${cuentaId}?handler=CerrarCuenta`,
-                     type: 'POST',
-                     headers: { "RequestVerificationToken": token },
-                     data: {
-                         metodoPago: metodo,
-                         montoPagado: montoPagado.toFixed(2),
-                         vuelto: vuelto.toFixed(2)
-                     },
-                                     success: function () {
-             // Cerrar el modal de pago
-             const modalEl = document.getElementById('modalPago');
-             const modal = bootstrap.Modal.getInstance(modalEl);
-             modal.hide();
-
-             // 🔹 Mostrar fondo verde parpadeante
-             document.body.classList.add("flash-green");
-
-             // 🔹 Mostrar mensaje grande en el centro
-             const msg = document.getElementById("mensajePagoExitoso");
-             msg.style.display = "block";
-
-             // 🔹 Ocultar mensaje y quitar efecto tras unos segundos
-             setTimeout(() => {
-                 msg.style.display = "none";
-                 document.body.classList.remove("flash-green");
-                 window.location.href = '/POS/Index';
-             }, 2500);
-         },
-
-
-                     error: function (xhr) {
-                         alert('❌ Error al cerrar la cuenta.\n' + (xhr.responseText || ''));
-                     }
-                 });
-             });
-
-
-
-         });
+                        setTimeout(() => {
+                            msg.style.display = "none";
+                            document.body.classList.remove("flash-green");
+                            window.location.href = '/POS/Index';
+                        }, 2500);
+                    },
+                    error: function (xhr) {
+                        alert('❌ Error al cerrar la cuenta.\n' + (xhr.responseText || ''));
+                    }
+                });
+            });
+        });
     </script>
 }
