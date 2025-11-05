@@ -1,0 +1,459 @@
+﻿@page
+@model BarPos.Pages.POS.VentaRapidaModel
+@{
+    ViewData["Title"] = "Venta Rápida";
+}
+
+<h2 class="text-center mb-3">⚡ Venta Rápida</h2>
+
+<form id="antiForgery" method="post">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="mb-3">
+    <label class="form-label fw-bold">Categorías</label>
+    <div class="d-flex flex-wrap gap-2">
+        @foreach (var c in Model.Categorias)
+        {
+            <button type="button" class="btn btn-outline-primary btn-sm categoria-btn" data-id="@c.Id" data-nombre="@c.Nombre">
+                @c.Nombre
+            </button>
+        }
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="border rounded p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h5 class="mb-0">Productos</h5>
+                <div class="d-flex align-items-center">
+                    <label class="me-2">Cantidad:</label>
+                    <input id="Cantidad" type="number" class="form-control form-control-sm" value="1" min="1" style="width:100px;" />
+                </div>
+            </div>
+            <div id="contenedorProductos" style="min-height:120px">
+                <p class="text-muted text-center m-0">Seleccione una categoría para ver los productos…</p>
+            </div>
+
+            <div id="seccionPresentaciones" class="mt-3" style="display:none;">
+                <label class="form-label fw-bold">Presentación (licores)</label>
+                <select id="PresentacionId" class="form-select">
+                    <option value="">-- Seleccione --</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="border rounded p-3">
+            <h5>🧺 Carrito</h5>
+            <table id="tablaSeleccionados" class="table table-sm table-bordered align-middle text-center">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Presentación</th>
+                        <th>Cant.</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="5" class="text-muted">Aún no hay productos seleccionados.</td></tr>
+                </tbody>
+            </table>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="fs-5 fw-bold">Total: ₡<span id="totalActual">0,00</span></div>
+                <button class="btn btn-success" id="btnCobrar" data-bs-toggle="modal" data-bs-target="#modalPago" disabled>
+                    <i class="bi bi-cash-coin"></i> Cobrar / Finalizar Venta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de pago -->
+<div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Cobro</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Método de pago</label>
+                    <select id="metodoPago" class="form-select">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Total a pagar</label>
+                    <input type="text" id="totalPago" class="form-control" readonly />
+                </div>
+
+                <div id="grpMonto" class="mb-3">
+                    <label class="form-label">Monto recibido</label>
+                    <input type="text" id="montoPagado" class="form-control" inputmode="numeric" pattern="[0-9]*" />
+                </div>
+
+                <div id="cashButtons" class="mb-2 d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="500">₡500</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="1000">₡1.000</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="2000">₡2.000</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="5000">₡5.000</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="10000">₡10.000</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="20000">₡20.000</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-cash" data-amount="50000">₡50.000</button>
+                    <button type="button" id="btnLimpiarMonto" class="btn btn-outline-danger btn-sm">Limpiar</button>
+                </div>
+
+                <div id="grpVuelto" class="mb-3">
+                    <label class="form-label">Vuelto</label>
+                    <input type="text" id="vuelto" class="form-control" readonly />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-success" id="btnConfirmarPago">Confirmar pago</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mensajePagoExitoso" style="display:none;">
+    💰 Pago completado con éxito
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            const token = $('#antiForgery input[name="__RequestVerificationToken"]').val();
+            const fmt = (v) => (Number(v) || 0).toLocaleString("es-CR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            let categoriaSeleccionada = "";
+            let productosEnCarrito = [];
+            let productoTemporal = null;
+            let stockProducto = {};
+
+            // ====== Cargar productos por categoría ======
+            $(".categoria-btn").on("click", function () {
+                categoriaSeleccionada = ($(this).data("nombre") || "").toString();
+                const categoriaId = $(this).data("id");
+
+                $(".categoria-btn").removeClass("btn-primary").addClass("btn-outline-primary");
+                $(this).removeClass("btn-outline-primary").addClass("btn-primary");
+
+                $("#contenedorProductos").html("<p class='text-muted text-center m-0'>Cargando productos…</p>");
+
+                $.getJSON(`?handler=ProductosPorCategoria&categoriaId=${categoriaId}`, function (data) {
+                    if (!data || data.length === 0) {
+                        $("#contenedorProductos").html("<p class='text-danger text-center m-0'>No hay productos en esta categoría.</p>");
+                        return;
+                    }
+
+                    stockProducto = {};
+                    let html = "<div class='d-flex flex-wrap gap-2 justify-content-start'>";
+                    data.forEach(p => {
+                        stockProducto[p.id] = p.stock;
+                        const sinStock = (p.stock || 0) <= 0;
+                        const badge = sinStock
+                            ? '<span class="badge bg-danger ms-1">Sin stock</span>'
+                            : `<span class="badge bg-success ms-1" id="badge-${p.id}">${p.stock}</span>`;
+
+                        html += `
+                        <button type="button" class="btn btn-outline-dark producto-btn ${sinStock ? "disabled" : ""}"
+                                data-id="${p.id}" data-nombre="${p.nombre}" data-stock="${p.stock}"
+                                data-precio="${p.precio}" ${sinStock ? "disabled" : ""}>
+                            ${p.nombre} ${badge}
+                        </button>`;
+                    });
+                    html += "</div>";
+                    $("#contenedorProductos").html(html);
+
+                    $("#seccionPresentaciones").hide();
+                });
+            });
+
+            // ====== Selección de producto ======
+            $(document).on("click", ".producto-btn", function () {
+                const productoId = $(this).data("id");
+                const nombre = $(this).data("nombre");
+                const stock = parseInt($(this).data("stock")) || 0;
+                const precio = parseFloat($(this).data("precio")) || 0;
+                const cantidad = parseInt($("#Cantidad").val()) || 1;
+
+                if (stock < cantidad) {
+                    alert(`⚠️ Stock insuficiente de "${nombre}". Solo hay ${stock}.`);
+                    return;
+                }
+
+                if ((categoriaSeleccionada || "").toLowerCase() === "licores") {
+                    productoTemporal = { productoId, nombre, cantidad, stock, precio };
+                    $("#seccionPresentaciones").show();
+                    $("#PresentacionId").html("<option>Cargando…</option>");
+                    $.getJSON(`?handler=PresentacionesPorProducto&productoId=${productoId}`, function (data) {
+                        $("#PresentacionId").empty().append('<option value="">-- Seleccione --</option>');
+                        (data || []).forEach(pr => {
+                            const st = pr.stock || 0;
+                            const info = st > 0 ? `(Stock: ${st})` : '(Sin stock)';
+                            $("#PresentacionId").append(
+                                `<option value="${pr.id}" data-stock="${st}" data-precio="${pr.precioVenta}">
+                                    ${pr.nombre} - ₡${fmt(pr.precioVenta)} ${info}
+                                 </option>`
+                            );
+                        });
+                    });
+                } else {
+                    agregarAlCarrito({
+                        productoId, presentacionId: null, nombre, presentacion: "-",
+                        cantidad, precio, stock
+                    });
+                }
+            });
+
+            $("#PresentacionId").on("change", function () {
+                const presId = $(this).val();
+                if (!productoTemporal || !presId) return;
+
+                const presTexto = $("#PresentacionId option:selected").text();
+                const stockPres = parseInt($("#PresentacionId option:selected").data("stock")) || 0;
+                const precio = parseFloat($("#PresentacionId option:selected").data("precio")) || 0;
+
+                if (stockPres < productoTemporal.cantidad) {
+                    alert(`⚠️ Stock insuficiente. Solo hay ${stockPres}.`);
+                    return;
+                }
+
+                agregarAlCarrito({
+                    productoId: productoTemporal.productoId,
+                    presentacionId: presId,
+                    nombre: productoTemporal.nombre,
+                    presentacion: presTexto,
+                    cantidad: productoTemporal.cantidad,
+                    precio,
+                    stock: stockPres
+                });
+
+                productoTemporal = null;
+                $("#seccionPresentaciones").hide();
+            });
+
+            function agregarAlCarrito(item) {
+                const idx = productosEnCarrito.findIndex(p =>
+                    p.productoId === item.productoId && p.presentacionId === item.presentacionId
+                );
+
+                const stockActual = stockProducto[item.productoId] ?? item.stock ?? 0;
+                const cantidadFutura = (idx >= 0 ? productosEnCarrito[idx].cantidad : 0) + item.cantidad;
+
+                if (cantidadFutura > stockActual) {
+                    alert(`⚠️ No puedes agregar más. Stock disponible: ${stockActual}`);
+                    return;
+                }
+
+                if (idx >= 0) productosEnCarrito[idx].cantidad += item.cantidad;
+                else productosEnCarrito.push(item);
+
+                const restante = stockActual - item.cantidad;
+                stockProducto[item.productoId] = restante;
+                const $badge = $(`#badge-${item.productoId}`);
+                if ($badge.length) {
+                    if (restante <= 0) {
+                        $badge.removeClass('bg-success').addClass('bg-danger').text('Sin stock');
+                        $(`.producto-btn[data-id='${item.productoId}']`).prop('disabled', true).addClass('disabled');
+                    } else $badge.text(restante);
+                }
+
+                renderTabla();
+            }
+
+            function renderTabla() {
+                const $tb = $("#tablaSeleccionados tbody");
+                $tb.empty();
+
+                if (productosEnCarrito.length === 0) {
+                    $tb.append("<tr><td colspan='5' class='text-muted'>Aún no hay productos seleccionados.</td></tr>");
+                    $("#totalActual").text(fmt(0));
+                    $("#btnCobrar").prop("disabled", true);
+                    return;
+                }
+
+                let total = 0;
+                productosEnCarrito.forEach((p, i) => {
+                    const precio = Number(p.precio) || 0;
+                    const sub = precio * (Number(p.cantidad) || 0);
+                    total += sub;
+
+                    $tb.append(`<tr>
+                        <td>${p.nombre}</td>
+                        <td>${p.presentacion}</td>
+                        <td>${p.cantidad}</td>
+                        <td class="text-end">₡${fmt(sub)}</td>
+                        <td><button class='btn btn-sm btn-danger eliminar-item' data-index='${i}'>🗑</button></td>
+                    </tr>`);
+                });
+
+                $("#totalActual").text(fmt(total));
+                $("#btnCobrar").prop("disabled", false);
+            }
+
+            $(document).on("click", ".eliminar-item", function () {
+                const i = $(this).data("index");
+                const item = productosEnCarrito[i];
+                stockProducto[item.productoId] = (stockProducto[item.productoId] ?? 0) + item.cantidad;
+                const nuevo = stockProducto[item.productoId];
+                const $badge = $(`#badge-${item.productoId}`);
+                if ($badge.length) {
+                    if (nuevo > 0) {
+                        $badge.removeClass('bg-danger').addClass('bg-success').text(nuevo);
+                        $(`.producto-btn[data-id='${item.productoId}']`).prop('disabled', false).removeClass('disabled');
+                    } else {
+                        $badge.removeClass('bg-success').addClass('bg-danger').text('Sin stock');
+                    }
+                }
+
+                productosEnCarrito.splice(i, 1);
+                renderTabla();
+            });
+
+            function calcularTotal() {
+                return productosEnCarrito.reduce((acc, p) => acc + ((Number(p.precio) || 0) * (Number(p.cantidad) || 0)), 0);
+            }
+
+            $('#modalPago').on('show.bs.modal', function () {
+                const total = calcularTotal();
+                $('#totalPago').val('₡' + fmt(total));
+                $('#metodoPago').val('Efectivo');
+                $('#montoPagado').val('');
+                $('#vuelto').val('');
+                $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+            });
+
+            $('#metodoPago').on('change', function () {
+                const metodo = $(this).val();
+                const total = calcularTotal();
+                if (metodo === 'Tarjeta') {
+                    $('#grpMonto, #grpVuelto, #cashButtons').addClass('d-none');
+                    $('#montoPagado').val(fmt(total));
+                    $('#vuelto').val('₡0.00');
+                } else {
+                    $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
+                    $('#montoPagado').val('');
+                    $('#vuelto').val('');
+                }
+            });
+
+            $('#montoPagado').on('input', function () {
+                const total = calcularTotal();
+                const pagado = parseFloat($(this).val()) || 0;
+                const dif = pagado - total;
+                $('#vuelto').val(dif < 0 ? 'Faltan ₡' + fmt(Math.abs(dif)) : '₡' + fmt(dif));
+            });
+
+            $('.btn-cash').on('click', function () {
+                const add = Number($(this).data('amount')) || 0;
+                const actual = parseFloat($('#montoPagado').val()) || 0;
+                $('#montoPagado').val(actual + add).trigger('input');
+            });
+
+            $('#btnLimpiarMonto').on('click', function () {
+                $('#montoPagado').val('').trigger('input');
+            });
+
+            $('#btnConfirmarPago').on('click', function () {
+                if (productosEnCarrito.length === 0) { alert("⚠️ Agrega al menos un producto."); return; }
+
+                const metodo = $('#metodoPago').val();
+                const totalNum = calcularTotal();
+                let montoPagado = 0, vuelto = 0;
+
+                if (metodo === 'Tarjeta') {
+                    montoPagado = totalNum;
+                } else {
+                    montoPagado = parseFloat($('#montoPagado').val()) || 0;
+                    if (montoPagado < totalNum) {
+                        alert('El monto pagado no puede ser menor al total.');
+                        return;
+                    }
+                    vuelto = montoPagado - totalNum;
+                }
+
+                $.ajax({
+                    url: `/POS/VentaRapida?handler=ConfirmarVenta`,
+                    method: "POST",
+                    headers: { "RequestVerificationToken": token },
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        MetodoPago: metodo,
+                        MontoPagado: montoPagado,
+                        Vuelto: vuelto,
+                        Items: productosEnCarrito.map(p => ({
+                            ProductoId: p.productoId,
+                            PresentacionId: p.presentacionId,
+                            Cantidad: p.cantidad
+                        }))
+                    }),
+                    success: function (res) {
+                        if (res.success) {
+                            // Animación visual como en el POS principal
+                            document.body.classList.add("flash-green");
+                            $("#mensajePagoExitoso").fadeIn(200);
+
+                            setTimeout(() => {
+                                $("#mensajePagoExitoso").fadeOut(400);
+                                document.body.classList.remove("flash-green");
+                                window.location.href = "/POS/Index";
+                            }, 1800);
+                        } else {
+                            alert("⚠️ " + (res.message || "Error al procesar la venta."));
+                        }
+                    }
+
+                });
+            });
+        });
+    </script>
+}
+
+
+    <style>
+        @@keyframes flashGreen {
+            0%, 100% {
+                background-color: white;
+            }
+
+            25%, 75% {
+                background-color: rgba(0, 255, 0, 0.35);
+            }
+
+            50% {
+                background-color: rgba(0, 255, 0, 0.55);
+            }
+        }
+
+        body.flash-green {
+            animation: flashGreen 1s ease-in-out 2;
+        }
+
+        #mensajePagoExitoso {
+            display: none;
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            background: #28a745;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 25px 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(0,128,0,.6);
+            z-index: 2000;
+            text-align: center;
+        }
+    </style>
+}
