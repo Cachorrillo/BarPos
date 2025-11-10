@@ -112,6 +112,10 @@ namespace BarPos.Pages.POS
                 .Take(5)
                 .ToList();
 
+            var todosProductosVendidos = productosVendidos
+    .OrderBy(p => p.NombreProducto)
+    .ToList();
+
             var resumen = new
             {
                 success = true,
@@ -121,7 +125,8 @@ namespace BarPos.Pages.POS
                 ventasEfectivo = ventasEfectivo,
                 ventasTarjeta = ventasTarjeta,
                 productosMasVendidos = masVendidos,
-                productosMenosVendidos = menosVendidos
+                productosMenosVendidos = menosVendidos,
+                todosProductosVendidos = todosProductosVendidos
             };
 
             return new JsonResult(resumen);
