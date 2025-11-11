@@ -20,8 +20,9 @@ namespace BarPos.Pages.Productos
 
         public SelectList CategoriasList { get; set; } = default!;
 
-        //Aqui se cargan los datos del producto a editar
-
+        // ====================================
+        // Cargar los datos del producto a editar
+        // ====================================
         public async Task<IActionResult> OnGetAsync(long id)
         {
             Producto = await _context.Productos.FindAsync(id);
@@ -31,46 +32,82 @@ namespace BarPos.Pages.Productos
                 return NotFound();
             }
 
-            //Poblar el dropdown con las categorias
             var categorias = await _context.Categorias.ToListAsync();
             CategoriasList = new SelectList(categorias, "Id", "Nombre", Producto.CategoriaId);
 
             return Page();
         }
 
-        //Aqui se guardan los cambios realizados al producto
+        // ====================================
+        // Guardar los cambios realizados
+        // ====================================
         public async Task<IActionResult> OnPostAsync()
         {
-            // 🩵 Esto mostrará errores en pantalla si algo no se envía
-            foreach (var state in ModelState)
-            {
-                foreach (var error in state.Value.Errors)
-                {
-                    Console.WriteLine($"❌ Error en campo '{state.Key}': {error.ErrorMessage}");
-                }
-            }
-
-            // Ignorar validación de navegaciones
+            // 🔹 Quitar validaciones automáticas de navegaciones que no se editan aquí
             ModelState.Remove("Producto.Categoria");
             ModelState.Remove("Producto.Presentaciones");
 
-
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                //Poblar el dropdown con las categorias
-                var categorias = await _context.Categorias.ToListAsync();
-                CategoriasList = new SelectList(categorias, "Id", "Nombre", Producto?.CategoriaId);
+                await CargarCategoriasAsync();
                 return Page();
             }
 
-            //Actualizar el producto
+            // ================================
+            // 🔸 Validación especial para licores
+            // ================================
+            if (Producto.EsLicor)
+            {
+                if (!Producto.MililitrosPorBotella.HasValue || Producto.MililitrosPorBotella <= 0)
+                {
+                    ModelState.AddModelError("Producto.MililitrosPorBotella",
+                        "Debe indicar cuántos mililitros tiene la botella del licor.");
+                    await CargarCategoriasAsync();
+                    return Page();
+                }
+            }
+            else
+            {
+                // Si el producto dejó de ser licor, limpiamos los valores
+                Producto.MililitrosPorBotella = null;
+                Producto.MlRestantesBotellaAbierta = 0;
+            }
 
-            _context.Attach(Producto).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            // ================================
+            // 🔸 Guardar cambios en la BD
+            // ================================
+            try
+            {
+                _context.Attach(Producto).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await ProductoExists(Producto.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return RedirectToPage("./Index");
-
         }
 
+        // ====================================
+        // Métodos auxiliares
+        // ====================================
+        private async Task CargarCategoriasAsync()
+        {
+            var categorias = await _context.Categorias.ToListAsync();
+            CategoriasList = new SelectList(categorias, "Id", "Nombre", Producto?.CategoriaId);
+        }
+
+        private async Task<bool> ProductoExists(long id)
+        {
+            return await _context.Productos.AnyAsync(e => e.Id == id);
+        }
     }
 }

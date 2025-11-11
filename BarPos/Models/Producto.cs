@@ -22,6 +22,11 @@ public partial class Producto
 
     public long CategoriaId { get; set; }
 
+    public bool EsLicor { get; set; } = false;
+    public int? MililitrosPorBotella { get; set; }
+    public int MlRestantesBotellaAbierta { get; set; } = 0;
+
+
     [ValidateNever]
     public virtual Categoria Categoria { get; set; } = null!;
 

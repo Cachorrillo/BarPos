@@ -21,6 +21,9 @@ public partial class Presentacion
 
     public int? CantidadEquivalente { get; set; }
 
+    public int Mililitros { get; set; }
+
+
 
     public virtual ICollection<DetalleCuenta> DetalleCuenta { get; set; } = new List<DetalleCuenta>();
 

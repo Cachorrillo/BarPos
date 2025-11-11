@@ -36,6 +36,41 @@
         <span asp-validation-for="Producto.CategoriaId" class="text-danger"></span>
     </div>
 
+    <!-- NUEVO: Checkbox "¿Es licor?" -->
+    <div class="form-check mb-3">
+        <input asp-for="Producto.EsLicor" class="form-check-input" id="esLicorCheckbox" />
+        <label class="form-check-label" for="esLicorCheckbox">¿Es licor?</label>
+    </div>
+
+    <!-- NUEVO: Campo "Mililitros por botella" -->
+    <div class="form-group mb-3" id="mililitrosGroup" style="display:none;">
+        <label asp-for="Producto.MililitrosPorBotella" class="form-label"></label>
+        <input asp-for="Producto.MililitrosPorBotella" class="form-control" type="number" min="1" />
+        <span asp-validation-for="Producto.MililitrosPorBotella" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-success">Guardar Cambios</button>
     <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
 </form>
+
+@section Scripts {
+    <script>
+        // ========================================
+        // Mostrar/Ocultar campo de mililitros
+        // ========================================
+
+        const chk = document.getElementById("esLicorCheckbox");
+        const grupoMl = document.getElementById("mililitrosGroup");
+
+        function toggleMililitros() {
+            // Si el checkbox está marcado, mostramos el campo
+            grupoMl.style.display = chk.checked ? "block" : "none";
+        }
+
+        // Escucha los cambios en el checkbox
+        chk.addEventListener("change", toggleMililitros);
+
+        // Ejecuta al cargar la página (para mostrarlo si ya estaba marcado)
+        toggleMililitros();
+    </script>
+}

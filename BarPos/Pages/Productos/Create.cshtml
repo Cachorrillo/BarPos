@@ -9,7 +9,6 @@
 <form method="post">
     <div asp-validation-summary="All" class="text-danger"></div>
 
-
     <div class="form-group mb-3">
         <label asp-for="Producto.Nombre"></label>
         <input asp-for="Producto.Nombre" class="form-control" />
@@ -18,7 +17,7 @@
 
     <div class="form-group mb-3">
         <label asp-for="Producto.PrecioCompra"></label>
-        <input asp-for="Producto.PrecioCompra" class="form-control" type="number"/>
+        <input asp-for="Producto.PrecioCompra" class="form-control" type="number" />
         <span asp-validation-for="Producto.PrecioCompra" class="text-danger"></span>
     </div>
 
@@ -36,6 +35,37 @@
         <span asp-validation-for="Producto.CategoriaId" class="text-danger"></span>
     </div>
 
+    <!-- NUEVO: Checkbox para marcar si es licor -->
+    <div class="form-check mb-3">
+        <input asp-for="Producto.EsLicor" class="form-check-input" id="esLicorCheckbox" />
+        <label class="form-check-label" for="esLicorCheckbox">¿Es licor?</label>
+    </div>
+
+    <!-- NUEVO: Campo visible solo si es licor -->
+    <div class="form-group mb-3" id="mililitrosGroup" style="display:none;">
+        <label asp-for="Producto.MililitrosPorBotella"></label>
+        <input asp-for="Producto.MililitrosPorBotella" class="form-control" type="number" min="1" />
+        <span asp-validation-for="Producto.MililitrosPorBotella" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-primary">Guardar</button>
     <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
 </form>
+
+@section Scripts {
+    <script>
+        // ===============================
+        // Mostrar/Ocultar campo de mililitros
+        // ===============================
+
+        const chk = document.getElementById("esLicorCheckbox");
+        const grupoMl = document.getElementById("mililitrosGroup");
+
+        function toggleMililitros() {
+            grupoMl.style.display = chk.checked ? "block" : "none";
+        }
+
+        chk.addEventListener("change", toggleMililitros);
+        toggleMililitros(); // ejecutar al cargar la página
+    </script>
+}

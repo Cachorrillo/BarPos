@@ -27,7 +27,12 @@ namespace BarPos.Pages.POS
                     p.Id,
                     p.Nombre,
                     p.Stock,
-                    // Si tienes PrecioVenta en Producto, cámbialo aquí:
+                    p.EsLicor,
+                    p.MlRestantesBotellaAbierta,
+                    // ?? Si tiene botellas o ml restantes, puede venderse
+                    PuedeVender = p.EsLicor
+                        ? (p.Stock > 0 || p.MlRestantesBotellaAbierta > 0)
+                        : p.Stock > 0,
                     Precio = p.PrecioCompra
                 })
                 .ToListAsync();
@@ -35,6 +40,10 @@ namespace BarPos.Pages.POS
             return new JsonResult(productos);
         }
 
+
+        // ============================================================
+        //  Mostrar presentaciones + información extendida de inventario
+        // ============================================================
         public async Task<JsonResult> OnGetPresentacionesPorProducto(long productoId)
         {
             var pres = await _context.Presentaciones
@@ -45,12 +54,23 @@ namespace BarPos.Pages.POS
                     pr.Id,
                     pr.Nombre,
                     pr.PrecioVenta,
-                    Stock = pr.Producto.Stock // stock compartido por producto base
+                    // ?? Identificamos si es licor
+                    EsLicor = pr.Producto.EsLicor,
+
+                    // ?? Mostramos texto de stock según el tipo de producto
+                    StockTexto = pr.Producto.EsLicor
+                        ? $"{pr.Producto.Stock} botellas ({pr.Producto.MlRestantesBotellaAbierta} ml restantes)"
+                        : $"{pr.Producto.Stock} unidades",
+
+                    // ?? Campos adicionales (para flexibilidad en front)
+                    StockBotellas = pr.Producto.Stock,
+                    MlRestantes = pr.Producto.MlRestantesBotellaAbierta
                 })
                 .ToListAsync();
 
             return new JsonResult(pres);
         }
+
 
         // ======= DTOs =======
         public class VentaRapidaItem
@@ -82,18 +102,59 @@ namespace BarPos.Pages.POS
 
                 using var tx = await _context.Database.BeginTransactionAsync();
 
-                // Validación de stock
+                // =====================================================
+                // ?? VALIDACIÓN DE STOCK GENERAL (UNIDADES o MILILITROS)
+                // =====================================================
                 foreach (var it in req.Items)
                 {
-                    var prod = await _context.Productos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == it.ProductoId);
-                    if (prod == null)
+                    var producto = await _context.Productos
+                        .Include(p => p.Presentaciones)
+                        .FirstOrDefaultAsync(p => p.Id == it.ProductoId);
+
+                    if (producto == null)
                     {
                         errores.Add($"Producto ID {it.ProductoId} no encontrado.");
                         continue;
                     }
-                    if (prod.Stock < it.Cantidad)
-                        errores.Add($"{prod.Nombre}: Stock insuficiente. Solo hay {prod.Stock} unidades.");
+
+                    // ========================
+                    // ?? LICORES (control por ml)
+                    // ========================
+                    if (producto.EsLicor && producto.MililitrosPorBotella.HasValue)
+                    {
+                        // Obtener presentación para saber cuántos ml se servirán
+                        var presentacion = await _context.Presentaciones
+                            .FirstOrDefaultAsync(p => p.Id == it.PresentacionId);
+
+                        if (presentacion == null || !presentacion.CantidadEquivalente.HasValue)
+                        {
+                            errores.Add($"{producto.Nombre}: No se encontró la presentación o cantidad de ml no válida.");
+                            continue;
+                        }
+
+                        int mlPorTrago = presentacion.CantidadEquivalente.Value;
+                        int totalMlConsumidos = mlPorTrago * it.Cantidad;
+                        int mlPorBotella = producto.MililitrosPorBotella.Value;
+                        int mlRestantes = producto.MlRestantesBotellaAbierta;
+
+                        // Cálculo total de mililitros disponibles
+                        int mlTotalesDisponibles = (producto.Stock * mlPorBotella) + mlRestantes;
+
+                        if (totalMlConsumidos > mlTotalesDisponibles)
+                        {
+                            errores.Add($"{producto.Nombre}: Stock insuficiente de botellas o mililitros. Solo quedan {mlTotalesDisponibles} ml.");
+                        }
+                    }
+                    else
+                    {
+                        // ========================
+                        // ?? PRODUCTOS NORMALES
+                        // ========================
+                        if (producto.Stock < it.Cantidad)
+                            errores.Add($"{producto.Nombre}: Stock insuficiente. Solo hay {producto.Stock} unidades.");
+                    }
                 }
+
 
                 if (errores.Count > 0)
                     return new JsonResult(new { success = false, message = "Error de stock.", errores });
@@ -123,6 +184,9 @@ namespace BarPos.Pages.POS
                         continue;
                     }
 
+                    // ============================
+                    //   DETERMINAR PRECIO VENTA
+                    // ============================
                     if (presentacionId.HasValue)
                     {
                         var pres = await _context.Presentaciones
@@ -143,15 +207,138 @@ namespace BarPos.Pages.POS
                         precio = producto.PrecioCompra;
                     }
 
-                    if (producto.Stock < it.Cantidad)
+                    // ============================
+                    //   CONTROL DE STOCK
+                    // ============================
+                    if (producto.EsLicor && producto.MililitrosPorBotella.HasValue)
                     {
-                        errores.Add($"{producto.Nombre}: Stock insuficiente al confirmar.");
-                        continue;
+                        // 1?? Obtener la presentación (para saber cuántos ml se sirven)
+                        var presentacion = await _context.Presentaciones
+                            .FirstOrDefaultAsync(p => p.Id == presentacionId);
+
+                        if (presentacion == null)
+                        {
+                            errores.Add($"{producto.Nombre}: No se encontró la presentación.");
+                            continue;
+                        }
+
+                        // Validar que tenga CantidadEquivalente definida
+                        int mlPorTrago = presentacion.CantidadEquivalente ?? 0;
+                        if (mlPorTrago <= 0)
+                        {
+                            errores.Add($"{producto.Nombre}: la presentación '{presentacion.Nombre}' no tiene definida la cantidad equivalente (ml).");
+                            continue;
+                        }
+
+                        // 2?? Calcular total de mililitros vendidos
+                        int totalMlConsumidos = mlPorTrago * it.Cantidad;
+                        int mlPorBotella = producto.MililitrosPorBotella.Value;
+                        int mlRestantes = producto.MlRestantesBotellaAbierta;
+
+                        // =====================================================
+                        // 3?? Usar primero la botella abierta (si hay)
+                        // =====================================================
+                        if (mlRestantes > 0)
+                        {
+                            if (totalMlConsumidos <= mlRestantes)
+                            {
+                                // Todo se consume de la botella abierta
+                                producto.MlRestantesBotellaAbierta -= totalMlConsumidos;
+                                totalMlConsumidos = 0;
+                            }
+                            else
+                            {
+                                // Se consume lo que quedaba y seguimos con botellas nuevas
+                                totalMlConsumidos -= mlRestantes;
+                                producto.MlRestantesBotellaAbierta = 0;
+                            }
+                        }
+
+                        // =====================================================
+                        // 4?? Abrir nuevas botellas si aún faltan mililitros
+                        // =====================================================
+                        if (totalMlConsumidos > 0)
+                        {
+                            int botellasCompletas = totalMlConsumidos / mlPorBotella;
+                            int mlRestoNuevaBotella = totalMlConsumidos % mlPorBotella;
+
+                            // Restar las botellas completas
+                            producto.Stock -= botellasCompletas;
+
+                            // Si hay resto, abrir una nueva botella y dejarla abierta con su remanente
+                            if (mlRestoNuevaBotella > 0)
+                            {
+                                if (producto.Stock <= 0)
+                                {
+                                    errores.Add($"{producto.Nombre}: No hay botellas suficientes para cubrir la venta.");
+                                    producto.MlRestantesBotellaAbierta = 0;
+                                    continue;
+                                }
+
+                                producto.Stock -= 1;
+                                producto.MlRestantesBotellaAbierta = mlPorBotella - mlRestoNuevaBotella;
+                            }
+                            else
+                            {
+                                producto.MlRestantesBotellaAbierta = 0;
+                            }
+                        }
+
+                        // =====================================================
+                        // 5?? Umbral mínimo de botella (para marcarla vacía)
+                        // =====================================================
+                        // Se evalúa en memoria para evitar error LINQ
+                        var presentacionesProducto = (await _context.Presentaciones
+                            .Where(p => p.ProductoId == producto.Id && p.CantidadEquivalente != null && p.CantidadEquivalente > 0)
+                            .ToListAsync())
+                            .AsEnumerable(); // ?? evaluación en memoria segura
+
+                        int mlTragoMinimo = presentacionesProducto.Any()
+                            ? presentacionesProducto.Min(p => p.CantidadEquivalente!.Value)
+                            : 0;
+
+                        int umbralCambioBotella = mlTragoMinimo; // puedes usar % si prefieres
+
+                        if (umbralCambioBotella > 0 &&
+                            producto.MlRestantesBotellaAbierta > 0 &&
+                            producto.MlRestantesBotellaAbierta < umbralCambioBotella)
+                        {
+                            // Consideramos la botella vacía
+                            producto.MlRestantesBotellaAbierta = 0;
+
+                            if (producto.Stock > 0)
+                                producto.Stock -= 1;
+                        }
+
+                        // =====================================================
+                        // 6?? Validar que no haya stock negativo y guardar cambios
+                        // =====================================================
+                        if (producto.Stock < 0)
+                        {
+                            errores.Add($"{producto.Nombre}: Stock insuficiente de botellas.");
+                            continue;
+                        }
+
+                        _context.Productos.Update(producto);
+                    }
+                    else
+                    {
+                        // =====================================================
+                        // PRODUCTO NORMAL (sin control por mililitros)
+                        // =====================================================
+                        if (producto.Stock < it.Cantidad)
+                        {
+                            errores.Add($"{producto.Nombre}: Stock insuficiente al confirmar.");
+                            continue;
+                        }
+
+                        producto.Stock -= it.Cantidad;
+                        _context.Productos.Update(producto);
                     }
 
-                    producto.Stock -= it.Cantidad;
-                    _context.Productos.Update(producto);
-
+                    // =====================================================
+                    // 6?? AGREGAR DETALLE DE CUENTA Y CALCULAR TOTAL
+                    // =====================================================
                     _context.DetalleCuenta.Add(new DetalleCuenta
                     {
                         CuentaId = cuenta.Id,

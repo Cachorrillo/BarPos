@@ -157,20 +157,40 @@
 
                     stockProducto = {};
                     let html = "<div class='d-flex flex-wrap gap-2 justify-content-start'>";
-                    data.forEach(p => {
-                        stockProducto[p.id] = p.stock;
-                        const sinStock = (p.stock || 0) <= 0;
-                        const badge = sinStock
-                            ? '<span class="badge bg-danger ms-1">Sin stock</span>'
-                            : `<span class="badge bg-success ms-1" id="badge-${p.id}">${p.stock}</span>`;
+                            data.forEach(p => {
+                                stockProducto[p.id] = p.stock;
 
-                        html += `
-                        <button type="button" class="btn btn-outline-dark producto-btn ${sinStock ? "disabled" : ""}"
-                                data-id="${p.id}" data-nombre="${p.nombre}" data-stock="${p.stock}"
-                                data-precio="${p.precio}" ${sinStock ? "disabled" : ""}>
-                            ${p.nombre} ${badge}
-                        </button>`;
-                    });
+                                // ================================
+                                // ✅ NUEVA LÓGICA DE STOCK VISUAL
+                                // ================================
+                                const sinStock = !p.puedeVender; // usamos el nuevo campo del backend
+
+                                // Si es licor, mostramos botellas + ml restantes
+                                let badge = '';
+                                if (p.esLicor) {
+                                    const texto = p.stock > 0
+                                        ? `${p.stock} botellas`
+                                        : `0 botellas`;
+                                    const restante = p.mlRestantesBotellaAbierta > 0
+                                        ? ` (${p.mlRestantesBotellaAbierta} ml restantes)`
+                                        : '';
+                                    badge = `<span class="badge ${sinStock ? "bg-danger" : "bg-success"} ms-1">${texto}${restante}</span>`;
+                                } else {
+                                    badge = sinStock
+                                        ? '<span class="badge bg-danger ms-1">Sin stock</span>'
+                                        : `<span class="badge bg-success ms-1" id="badge-${p.id}">${p.stock}</span>`;
+                                }
+
+                                // Botón del producto
+                                const disabledClass = sinStock ? "disabled" : "";
+                                html += `
+                                <button type="button" class="btn btn-outline-dark producto-btn ${disabledClass}"
+                                        data-id="${p.id}" data-nombre="${p.nombre}" data-stock="${p.stock}"
+                                        data-precio="${p.precio}" ${disabledClass ? "disabled" : ""}>
+                                    ${p.nombre} ${badge}
+                                </button>`;
+                            });
+
                     html += "</div>";
                     $("#contenedorProductos").html(html);
 
@@ -195,19 +215,37 @@
                     productoTemporal = { productoId, nombre, cantidad, stock, precio };
                     $("#seccionPresentaciones").show();
                     $("#PresentacionId").html("<option>Cargando…</option>");
+
+                    // 🔹 Cargar presentaciones del producto seleccionado
                     $.getJSON(`?handler=PresentacionesPorProducto&productoId=${productoId}`, function (data) {
                         $("#PresentacionId").empty().append('<option value="">-- Seleccione --</option>');
+
                         (data || []).forEach(pr => {
-                            const st = pr.stock || 0;
-                            const info = st > 0 ? `(Stock: ${st})` : '(Sin stock)';
-                            $("#PresentacionId").append(
-                                `<option value="${pr.id}" data-stock="${st}" data-precio="${pr.precioVenta}">
+                            // ===============================
+                            // BLOQUE MODIFICADO 👇
+                            // ===============================
+                            let info = '';
+
+                            if (pr.esLicor) {
+                                // Si es licor → mostrar botellas + ml restantes
+                                const textoStock = pr.stockTexto || '';
+                                info = textoStock !== '' ? `(${textoStock})` : '(Sin stock)';
+                            } else {
+                                // Si no es licor → unidades normales
+                                const st = pr.stockBotellas || 0;
+                                info = st > 0 ? `(Stock: ${st} unidades)` : '(Sin stock)';
+                            }
+
+                            $("#PresentacionId").append(`
+                                <option value="${pr.id}"
+                                        data-precio="${pr.precioVenta}">
                                     ${pr.nombre} - ₡${fmt(pr.precioVenta)} ${info}
-                                 </option>`
-                            );
+                                </option>
+                            `);
                         });
                     });
                 } else {
+                    // Productos normales sin presentaciones
                     agregarAlCarrito({
                         productoId, presentacionId: null, nombre, presentacion: "-",
                         cantidad, precio, stock
@@ -215,18 +253,13 @@
                 }
             });
 
+            // ====== Selección de presentación ======
             $("#PresentacionId").on("change", function () {
                 const presId = $(this).val();
                 if (!productoTemporal || !presId) return;
 
                 const presTexto = $("#PresentacionId option:selected").text();
-                const stockPres = parseInt($("#PresentacionId option:selected").data("stock")) || 0;
                 const precio = parseFloat($("#PresentacionId option:selected").data("precio")) || 0;
-
-                if (stockPres < productoTemporal.cantidad) {
-                    alert(`⚠️ Stock insuficiente. Solo hay ${stockPres}.`);
-                    return;
-                }
 
                 agregarAlCarrito({
                     productoId: productoTemporal.productoId,
@@ -235,42 +268,57 @@
                     presentacion: presTexto,
                     cantidad: productoTemporal.cantidad,
                     precio,
-                    stock: stockPres
+                    stock: productoTemporal.stock
                 });
 
                 productoTemporal = null;
                 $("#seccionPresentaciones").hide();
             });
 
+            // ====== Agregar al carrito ======
             function agregarAlCarrito(item) {
                 const idx = productosEnCarrito.findIndex(p =>
                     p.productoId === item.productoId && p.presentacionId === item.presentacionId
                 );
 
-                const stockActual = stockProducto[item.productoId] ?? item.stock ?? 0;
-                const cantidadFutura = (idx >= 0 ? productosEnCarrito[idx].cantidad : 0) + item.cantidad;
+                // 🔹 Identificar el producto original (por ID)
+                const productoBase = Object.values(stockProducto).find((_, key) => key == item.productoId);
 
-                if (cantidadFutura > stockActual) {
-                    alert(`⚠️ No puedes agregar más. Stock disponible: ${stockActual}`);
-                    return;
+                // ✅ Nueva validación de stock:
+                // Si el producto es licor, dejamos que el backend valide por mililitros
+                // Si no es licor, usamos el control actual de stock por unidades
+                const esLicor = item.presentacionId !== null; // las presentaciones solo existen para licores
+
+                if (!esLicor) {
+                    const stockActual = stockProducto[item.productoId] ?? item.stock ?? 0;
+                    const cantidadFutura = (idx >= 0 ? productosEnCarrito[idx].cantidad : 0) + item.cantidad;
+
+                    if (cantidadFutura > stockActual) {
+                        alert(`⚠️ No puedes agregar más. Stock disponible: ${stockActual}`);
+                        return;
+                    }
+
+                    // Reducir el stock mostrado para productos normales
+                    const restante = stockActual - item.cantidad;
+                    stockProducto[item.productoId] = restante;
+                    const $badge = $(`#badge-${item.productoId}`);
+                    if ($badge.length) {
+                        if (restante <= 0) {
+                            $badge.removeClass('bg-success').addClass('bg-danger').text('Sin stock');
+                            $(`.producto-btn[data-id='${item.productoId}']`).prop('disabled', true).addClass('disabled');
+                        } else $badge.text(restante);
+                    }
                 }
 
+                // 🔹 Agregar o actualizar el producto en el carrito
                 if (idx >= 0) productosEnCarrito[idx].cantidad += item.cantidad;
                 else productosEnCarrito.push(item);
-
-                const restante = stockActual - item.cantidad;
-                stockProducto[item.productoId] = restante;
-                const $badge = $(`#badge-${item.productoId}`);
-                if ($badge.length) {
-                    if (restante <= 0) {
-                        $badge.removeClass('bg-success').addClass('bg-danger').text('Sin stock');
-                        $(`.producto-btn[data-id='${item.productoId}']`).prop('disabled', true).addClass('disabled');
-                    } else $badge.text(restante);
-                }
 
                 renderTabla();
             }
 
+
+            // ====== Renderizar tabla de productos ======
             function renderTabla() {
                 const $tb = $("#tablaSeleccionados tbody");
                 $tb.empty();
@@ -301,6 +349,7 @@
                 $("#btnCobrar").prop("disabled", false);
             }
 
+            // ====== Eliminar item ======
             $(document).on("click", ".eliminar-item", function () {
                 const i = $(this).data("index");
                 const item = productosEnCarrito[i];
@@ -320,10 +369,12 @@
                 renderTabla();
             });
 
+            // ====== Calcular total ======
             function calcularTotal() {
                 return productosEnCarrito.reduce((acc, p) => acc + ((Number(p.precio) || 0) * (Number(p.cantidad) || 0)), 0);
             }
 
+            // ====== Modal de pago ======
             $('#modalPago').on('show.bs.modal', function () {
                 const total = calcularTotal();
                 $('#totalPago').val('₡' + fmt(total));
@@ -333,6 +384,7 @@
                 $('#grpMonto, #grpVuelto, #cashButtons').removeClass('d-none');
             });
 
+            // ====== Cambiar método de pago ======
             $('#metodoPago').on('change', function () {
                 const metodo = $(this).val();
                 const total = calcularTotal();
@@ -347,6 +399,7 @@
                 }
             });
 
+            // ====== Cálculo del vuelto ======
             $('#montoPagado').on('input', function () {
                 const total = calcularTotal();
                 const pagado = parseFloat($(this).val()) || 0;
@@ -355,7 +408,7 @@
             });
 
             $('.btn-cash').on('click', function () {
-                const add = Number($(this).data('amount')) || 0;
+                const add = Number($(this).data("amount")) || 0;
                 const actual = parseFloat($('#montoPagado').val()) || 0;
                 $('#montoPagado').val(actual + add).trigger('input');
             });
@@ -364,6 +417,7 @@
                 $('#montoPagado').val('').trigger('input');
             });
 
+            // ====== Confirmar pago ======
             $('#btnConfirmarPago').on('click', function () {
                 if (productosEnCarrito.length === 0) { alert("⚠️ Agrega al menos un producto."); return; }
 
@@ -412,7 +466,6 @@
                             alert("⚠️ " + (res.message || "Error al procesar la venta."));
                         }
                     }
-
                 });
             });
         });
@@ -420,40 +473,41 @@
 }
 
 
-    <style>
-        @@keyframes flashGreen {
-            0%, 100% {
-                background-color: white;
-            }
 
-            25%, 75% {
-                background-color: rgba(0, 255, 0, 0.35);
-            }
-
-            50% {
-                background-color: rgba(0, 255, 0, 0.55);
-            }
+<style>
+    @@keyframes flashGreen {
+        0%, 100% {
+            background-color: white;
         }
 
-        body.flash-green {
-            animation: flashGreen 1s ease-in-out 2;
+        25%, 75% {
+            background-color: rgba(0, 255, 0, 0.35);
         }
 
-        #mensajePagoExitoso {
-            display: none;
-            position: fixed;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%,-50%);
-            background: #28a745;
-            color: #fff;
-            font-size: 2rem;
-            font-weight: bold;
-            padding: 25px 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 25px rgba(0,128,0,.6);
-            z-index: 2000;
-            text-align: center;
+        50% {
+            background-color: rgba(0, 255, 0, 0.55);
         }
-    </style>
+    }
+
+    body.flash-green {
+        animation: flashGreen 1s ease-in-out 2;
+    }
+
+    #mensajePagoExitoso {
+        display: none;
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        background: #28a745;
+        color: #fff;
+        font-size: 2rem;
+        font-weight: bold;
+        padding: 25px 40px;
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(0,128,0,.6);
+        z-index: 2000;
+        text-align: center;
+    }
+</style>
 }
