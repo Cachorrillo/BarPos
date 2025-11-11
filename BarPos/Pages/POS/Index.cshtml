@@ -46,8 +46,7 @@ else
                         <a asp-page="Detalles" asp-route-id="@cuenta.Id" class="btn btn-primary btn-sm">
                             <i class="bi bi-cart-plus"></i> Agregar Productos
                         </a>
-                        <a asp-page="Detalles" asp-route-id="@cuenta.Id"
-                           class="btn btn-outline-primary btn-sm">
+                        <a asp-page="Detalles" asp-route-id="@cuenta.Id" class="btn btn-outline-primary btn-sm">
                             Ver / Cerrar cuenta
                         </a>
                     </td>
@@ -169,6 +168,32 @@ else
                             </div>
                         </div>
                     </div>
+
+                    <!-- Lista completa -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">📋 Lista Productos Vendidos</h6>
+                                </div>
+                                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped table-hover">
+                                        <thead class="sticky-top bg-light">
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Presentación</th>
+                                                <th class="text-center">Cantidad</th>
+                                                <th class="text-end">Total Ventas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaTodosProductos">
+                                            <tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Mensaje de error -->
@@ -186,134 +211,154 @@ else
     </div>
 </div>
 
+<style>
+    @@media print {
+        .modal-header, .modal-footer, .btn, nav {
+            display: none !important;
+        }
+
+        .modal-dialog {
+            max-width: 100% !important;
+            margin: 0 !important;
+        }
+
+        .modal-content {
+            border: none !important;
+        }
+
+        .sticky-top {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    }
+</style>
+
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            const fmt = (v) => (Number(v) || 0).toLocaleString("es-CR", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+        $(function () {
+            const fmt = v => (Number(v) || 0).toLocaleString("es-CR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            // Establecer fecha de hoy por defecto
-            const hoy = new Date().toISOString().split('T')[0];
-            $('#fechaCaja').val(hoy);
+            // Fecha hoy
+            const hoy = new Date().toISOString().split("T")[0];
+            $("#fechaCaja").val(hoy);
 
-            // Al abrir el modal, consultar automáticamente
-            $('#modalCerrarCaja').on('shown.bs.modal', function () {
-                consultarResumen();
-            });
+            // Eventos
+            $("#modalCerrarCaja").on("shown.bs.modal", consultarResumen);
+            $("#fechaCaja").on("change", consultarResumen);
 
-            // Al cambiar la fecha, actualizar automáticamente
-            $('#fechaCaja').on('change', function () {
-                consultarResumen();
-            });
+            $("#btnImprimirResumen").on("click", () => window.print());
 
-            // Función para consultar resumen
             function consultarResumen() {
-                const fecha = $('#fechaCaja').val();
+                const fecha = $("#fechaCaja").val();
+                if (!fecha) { alert("Por favor selecciona una fecha."); return; }
 
-                console.log('Consultando resumen para fecha:', fecha);
-
-                if (!fecha) {
-                    alert('Por favor selecciona una fecha.');
-                    return;
-                }
-
-                // Mostrar loading
-                $('#loadingCaja').removeClass('d-none');
-                $('#resultadoCaja').addClass('d-none');
-                $('#errorCaja').addClass('d-none');
-                $('#btnImprimirResumen').addClass('d-none');
+                mostrarEstado("cargando");
 
                 $.ajax({
-                    url: '/POS/Index?handler=ResumenCaja',
-                    type: 'GET',
-                    data: { fecha: fecha },
+                    url: "/POS/Index?handler=ResumenCaja",
+                    type: "GET",
+                    data: { fecha },
                     success: function (data) {
-                        console.log('Respuesta del servidor:', data);
-                        $('#loadingCaja').addClass('d-none');
-
                         if (!data.success) {
-                            $('#errorCaja').removeClass('d-none');
-                            $('#mensajeError').text(data.message);
+                            mostrarEstado("error", data.message);
                             return;
                         }
 
-                        // Mostrar resumen
-                        $('#totalCuentas').text(data.totalCuentas);
-                        $('#totalVentas').text('₡' + fmt(data.totalVentas));
-                        $('#ventasEfectivo').text('₡' + fmt(data.ventasEfectivo));
-                        $('#ventasTarjeta').text('₡' + fmt(data.ventasTarjeta));
+                        // Resumen numérico
+                        $("#totalCuentas").text(data.totalCuentas);
+                        $("#totalVentas").text("₡" + fmt(data.totalVentas));
+                        $("#ventasEfectivo").text("₡" + fmt(data.ventasEfectivo));
+                        $("#ventasTarjeta").text("₡" + fmt(data.ventasTarjeta));
 
-                        // Llenar tabla de más vendidos
-                        const tbodyMas = $('#tablaMasVendidos');
-                        tbodyMas.empty();
-                        if (data.productosMasVendidos.length === 0) {
-                            tbodyMas.append('<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>');
-                        } else {
-                            data.productosMasVendidos.forEach(p => {
-                                tbodyMas.append(`
-                                    <tr>
-                                        <td>${p.nombreProducto}</td>
-                                        <td>${p.presentacion || '-'}</td>
-                                        <td class="text-center">${p.cantidadVendida}</td>
-                                        <td class="text-end">₡${fmt(p.totalVentas)}</td>
-                                    </tr>
-                                `);
-                            });
-                        }
+                        // Tablas
+                        rellenarTabla("#tablaMasVendidos", data.productosMasVendidos);
+                        rellenarTabla("#tablaMenosVendidos", data.productosMenosVendidos);
+                        rellenarTablaCompleta("#tablaTodosProductos", data.todosProductosVendidos);
 
-                        // Llenar tabla de menos vendidos
-                        const tbodyMenos = $('#tablaMenosVendidos');
-                        tbodyMenos.empty();
-                        if (data.productosMenosVendidos.length === 0) {
-                            tbodyMenos.append('<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>');
-                        } else {
-                            data.productosMenosVendidos.forEach(p => {
-                                tbodyMenos.append(`
-                                    <tr>
-                                        <td>${p.nombreProducto}</td>
-                                        <td>${p.presentacion || '-'}</td>
-                                        <td class="text-center">${p.cantidadVendida}</td>
-                                        <td class="text-end">₡${fmt(p.totalVentas)}</td>
-                                    </tr>
-                                `);
-                            });
-                        }
-
-                        $('#resultadoCaja').removeClass('d-none');
-                        $('#btnImprimirResumen').removeClass('d-none');
+                        mostrarEstado("ok");
                     },
                     error: function (xhr) {
-                        console.error('Error en la petición:', xhr);
-                        $('#loadingCaja').addClass('d-none');
-                        $('#errorCaja').removeClass('d-none');
-                        $('#mensajeError').text('Error al cargar el resumen: ' + (xhr.responseText || 'Sin detalles'));
+                        const msg = xhr.responseText || "Sin detalles";
+                        mostrarEstado("error", "Error al cargar el resumen: " + msg);
+                        console.error("Error petición:", xhr);
                     }
                 });
             }
 
-            // Imprimir resumen
-            $('#btnImprimirResumen').on('click', function () {
-                window.print();
-            });
+            function mostrarEstado(estado, mensaje) {
+                const loading = $("#loadingCaja");
+                const resultado = $("#resultadoCaja");
+                const error = $("#errorCaja");
+                const imprimir = $("#btnImprimirResumen");
+
+                if (estado === "cargando") {
+                    loading.removeClass("d-none");
+                    resultado.addClass("d-none");
+                    error.addClass("d-none");
+                    imprimir.addClass("d-none");
+                } else if (estado === "error") {
+                    loading.addClass("d-none");
+                    resultado.addClass("d-none");
+                    error.removeClass("d-none");
+                    imprimir.addClass("d-none");
+                    $("#mensajeError").text(mensaje || "Error desconocido.");
+                } else if (estado === "ok") {
+                    loading.addClass("d-none");
+                    resultado.removeClass("d-none");
+                    error.addClass("d-none");
+                    imprimir.removeClass("d-none");
+                }
+            }
+
+            function rellenarTabla(selector, lista) {
+                const tbody = $(selector);
+                tbody.empty();
+                if (!lista || lista.length === 0) {
+                    tbody.append('<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>');
+                    return;
+                }
+                lista.forEach(p => {
+                    tbody.append(`
+                        <tr>
+                            <td>${p.nombreProducto}</td>
+                            <td>${p.presentacion || "-"}</td>
+                            <td class="text-center">${p.cantidadVendida}</td>
+                            <td class="text-end">₡${fmt(p.totalVentas)}</td>
+                        </tr>
+                    `);
+                });
+            }
+
+            function rellenarTablaCompleta(selector, lista) {
+                const tbody = $(selector);
+                tbody.empty();
+                if (!lista || lista.length === 0) {
+                    tbody.append('<tr><td colspan="4" class="text-center text-muted">Sin datos</td></tr>');
+                    return;
+                }
+                let totalCantidad = 0;
+                let totalVentasSum = 0;
+                lista.forEach(p => {
+                    totalCantidad += p.cantidadVendida;
+                    totalVentasSum += p.totalVentas;
+                    tbody.append(`
+                        <tr>
+                            <td>${p.nombreProducto}</td>
+                            <td>${p.presentacion || "-"}</td>
+                            <td class="text-center">${p.cantidadVendida}</td>
+                            <td class="text-end">₡${fmt(p.totalVentas)}</td>
+                        </tr>
+                    `);
+                });
+                tbody.append(`
+                    <tr class="table-dark fw-bold">
+                        <td colspan="2" class="text-end">TOTALES:</td>
+                        <td class="text-center">${totalCantidad}</td>
+                        <td class="text-end">₡${fmt(totalVentasSum)}</td>
+                    </tr>
+                `);
+            }
         });
     </script>
-
-    <style>
-        @@media print {
-            .modal-header, .modal-footer, .btn, nav {
-                display: none !important;
-            }
-
-            .modal-dialog {
-                max-width: 100% !important;
-                margin: 0 !important;
-            }
-
-            .modal-content {
-                border: none !important;
-            }
-        }
-    </style>
 }

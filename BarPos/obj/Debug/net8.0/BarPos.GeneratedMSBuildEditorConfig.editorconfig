@@ -17,113 +17,113 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = BarPos
 build_property.RootNamespace = BarPos
-build_property.ProjectDir = C:\Users\victo\source\repos\BarPos\BarPos\
+build_property.ProjectDir = C:\Users\Usuario\Source\Repos\BarPos1\BarPos\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\victo\source\repos\BarPos\BarPos
+build_property.MSBuildProjectDirectory = C:\Users\Usuario\Source\Repos\BarPos1\BarPos
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Categorias/Create.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Categorias/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2F0ZWdvcmlhc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Categorias/Delete.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Categorias/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2F0ZWdvcmlhc1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Categorias/Edit.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Categorias/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2F0ZWdvcmlhc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Categorias/Index.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Categorias/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2F0ZWdvcmlhc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Error.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Index.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/POS/Create.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/POS/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUE9TXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/POS/CuentasAbiertas.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/POS/CuentasAbiertas.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUE9TXEN1ZW50YXNBYmllcnRhcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/POS/CuentasCerradas.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/POS/CuentasCerradas.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUE9TXEN1ZW50YXNDZXJyYWRhcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/POS/Detalles.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/POS/Detalles.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUE9TXERldGFsbGVzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/POS/Index.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/POS/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUE9TXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/POS/VentaRapida.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/POS/VentaRapida.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUE9TXFZlbnRhUmFwaWRhLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Presentaciones/Create.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Presentaciones/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJlc2VudGFjaW9uZXNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Presentaciones/Delete.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Presentaciones/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJlc2VudGFjaW9uZXNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Presentaciones/Edit.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Presentaciones/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJlc2VudGFjaW9uZXNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Presentaciones/Index.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Presentaciones/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJlc2VudGFjaW9uZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Privacy.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Productos/Create.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Productos/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdG9zXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Productos/Delete.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Productos/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdG9zXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Productos/Edit.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Productos/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdG9zXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Productos/Index.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Productos/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdG9zXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/_ViewImports.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/_ViewStart.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/victo/source/repos/BarPos/BarPos/Pages/Shared/_Layout.cshtml]
+[C:/Users/Usuario/Source/Repos/BarPos1/BarPos/Pages/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-q9rw7zdz38
