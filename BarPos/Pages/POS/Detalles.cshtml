@@ -87,7 +87,11 @@ else // Si hay detalless, muestra tabla con productos
                                 +
                             </button>
                         </div>
-                        <small class="text-muted d-block mt-1">Stock: @stockMax</small>
+                        @if (!d.Producto.EsLicor)
+                        {
+                            <small class="text-muted d-block mt-1">Stock: @stockMax</small>
+                        }
+
                     </td>
                     <!--Muestra el precio unitario y el subtotal(precio * cantidad)-->
                     <td class="pu">@d.PrecioUnitario.ToString("N2")</td>
@@ -381,338 +385,334 @@ else // Si hay detalless, muestra tabla con productos
             let productoTemporal = null;
             let stockDisponiblePorProducto = {};
 
+
+
+            function mostrarModalError(texto) {
+                $("#modalErrorTexto").html(texto.replace(/\n/g, "<br>"));
+                const modal = new bootstrap.Modal(document.getElementById("modalError"));
+                modal.show();
+            }
+
+
             // =================== MODAL DE AGREGAR PRODUCTOS ===================
 
-            $(".categoria-btn").click(function () {
-                categoriaSeleccionada = $(this).data("nombre");// Guarda el nombre de la categoría seleccionada
-                const categoriaId = $(this).data("id");// Obtiene el ID de la categoría desde el botón
 
-                 // Estilo visual: resalta la categoría seleccionada
-                $(".categoria-btn").removeClass("btn-primary").addClass("btn-outline-primary");
-                $(this).removeClass("btn-outline-primary").addClass("btn-primary");
+                    $(".categoria-btn").click(function () {
+            categoriaSeleccionada = $(this).data("nombre").toLowerCase();
+            const categoriaId = $(this).data("id");
 
-                // Muestra mensaje mientras se cargan los productos
-                $("#contenedorProductos").html("<p class='text-muted text-center'>Cargando productos...</p>");
+            $(".categoria-btn").removeClass("btn-primary").addClass("btn-outline-primary");
+            $(this).removeClass("btn-outline-primary").addClass("btn-primary");
 
-                // Solicita productos de esa categoría al servidor
-                $.getJSON(`?handler=ProductosPorCategoria&categoriaId=${categoriaId}`, function (data) {
-                    if (data.length === 0) {
-                         // Si no hay productos
-                        $("#contenedorProductos").html("<p class='text-center text-danger'>No hay productos en esta categoría.</p>");
-                        return;
-                    }
+            $("#contenedorProductos").html("<p class='text-muted text-center'>Cargando productos...</p>");
 
-                    stockDisponiblePorProducto = {};// Limpia stock anterior
-                    let html = "<div class='d-flex flex-wrap gap-2 justify-content-start'>";// Contenedor de productos
-
-                     // Recorre los productos y genera botones para cada uno
-                    $.each(data, function (i, producto) {
-                        stockDisponiblePorProducto[producto.id] = producto.stock; // Guarda stock
-                        stockDisponiblePorProducto[`nombre_${producto.id}`] = producto.nombre;
-
-                        const sinStock = producto.stock <= 0; // Verifica si el producto está agotado
-                        const disabledClass = sinStock ? 'disabled' : '';
-                        const stockBadge = sinStock
-                            ? '<span class="badge bg-danger ms-1">Sin stock</span>'
-                            : `<span class="badge bg-success ms-1" id="badge-${producto.id}">${producto.stock}</span>`;
-
-                            // Botón del producto con nombre y badge de stock
-                        html += `<button type="button"
-                                        class="btn btn-outline-dark producto-btn ${disabledClass}"
-                                        data-id="${producto.id}"
-                                        data-nombre="${producto.nombre}"
-                                        data-stock="${producto.stock}"
-                                        ${sinStock ? 'disabled' : ''}>
-                                        ${producto.nombre} ${stockBadge}
-                                 </button>`;
-                    });
-                    html += "</div>";
-                    // Inserta todos los botones generados en el contenedor
-                    $("#contenedorProductos").html(html);
-                    $("#seccionPresentaciones").hide(); // Oculta la sección de presentaciones (solo para licores)
-                });
-            });
-            // Al hacer clic en un producto
-            $(document).on("click", ".producto-btn", function () {
-                const productoId = $(this).data("id");
-                const nombre = $(this).data("nombre");
-                const stock = parseInt($(this).data("stock")) || 0;
-                const categoria = categoriaSeleccionada.toLowerCase();
-                const cantidad = parseInt($("#Cantidad").val()) || 1;
-                //si stock es menor que la cantidad seleccionada muestra una alerta
-                if (stock < cantidad) {
-                    alert(`⚠️ Stock insuficiente de "${nombre}". Solo hay ${stock} unidades disponibles.`);
+            $.getJSON(`?handler=ProductosPorCategoria&categoriaId=${categoriaId}`, function (data) {
+                if (data.length === 0) {
+                    $("#contenedorProductos").html("<p class='text-center text-danger'>No hay productos en esta categoría.</p>");
                     return;
                 }
 
-                $(".producto-btn").removeClass("btn-dark").addClass("btn-outline-dark");
-                $(this).removeClass("btn-outline-dark").addClass("btn-dark");
+                stockDisponiblePorProducto = {};
+                let html = "<div class='d-flex flex-wrap gap-2 justify-content-start'>";
 
-                //Si el producto pertenece a la categoria licores se cargan las presentaciones
-                if (categoria === "licores") {
-                    productoTemporal = { productoId, nombre, cantidad, stock };
-                    $("#seccionPresentaciones").show();
-                    $("#PresentacionId").html("<option>Cargando...</option>");
-                    $.getJSON(`?handler=PresentacionesPorProducto&productoId=${productoId}`, function (data) {
-                        $("#PresentacionId").empty().append('<option value="">-- Seleccione una presentación --</option>');
-                        $.each(data, function (i, pres) {
-                            const stockInfo = pres.stock > 0 ? `(Stock: ${pres.stock})` : '(Sin stock)';
-                            $("#PresentacionId").append(
-                                `<option value="${pres.id}" data-stock="${pres.stock}">
-                                    ${pres.nombre} - ₡${pres.precioVenta.toFixed(2)} ${stockInfo}
-                                </option>`
-                            );
-                        });
-                    });
-                } else {
-                    //Los productos que no son licores se agregan directamente al carrito
-                    agregarAlCarrito({
-                        productoId,
-                        presentacionId: null,
-                        nombre,
-                        presentacion: "-",
-                        cantidad,
-                        stock
-                    });
-                }
+                $.each(data, function (i, producto) {
+
+                    // SI ES LICOR → NO MOSTRAR STOCK
+                    let stockBadge = "";
+                    if (categoriaSeleccionada !== "licores") {
+                        stockDisponiblePorProducto[producto.id] = producto.stock;
+                        stockBadge = producto.stock > 0
+                            ? `<span class="badge bg-success ms-1" id="badge-${producto.id}">${producto.stock}</span>`
+                            : `<span class="badge bg-danger ms-1">Sin stock</span>`;
+                    } else {
+                        stockDisponiblePorProducto[producto.id] = Infinity; // stock infinito para visual
+                    }
+
+                    html += `
+                        <button type="button"
+                            class="btn btn-outline-dark producto-btn"
+                            data-id="${producto.id}"
+                            data-nombre="${producto.nombre}"
+                            data-stock="${producto.stock}">
+                            ${producto.nombre} ${stockBadge}
+                        </button>
+                    `;
+                });
+
+                html += "</div>";
+
+                $("#contenedorProductos").html(html);
+                $("#seccionPresentaciones").hide();
             });
-                    /*Cuando el usuario selecciona una presentación, se valida el stock disponible y se agrega el producto al carrito
-        luego se oculta la sección de presentaciones*/
-            $("#PresentacionId").change(function () {
-                const presId = $(this).val();
-                const presTexto = $("#PresentacionId option:selected").text();
-                const stockPres = parseInt($("#PresentacionId option:selected").data("stock")) || 0;
+        });
 
-                if (!productoTemporal || !presId) return;
+        // =================== Selección de producto ===================
 
-                const cantidad = productoTemporal.cantidad;
+        $(document).on("click", ".producto-btn", function () {
+            const productoId = $(this).data("id");
+            const nombre = $(this).data("nombre");
+            const stock = parseInt($(this).data("stock")) || 0;
+            const cantidad = parseInt($("#Cantidad").val()) || 1;
 
-                if (stockPres < cantidad) {
-                    alert(`⚠️ Stock insuficiente. Solo hay ${stockPres} unidades de esta presentación.`);
+            $(".producto-btn").removeClass("btn-dark").addClass("btn-outline-dark");
+            $(this).removeClass("btn-outline-dark").addClass("btn-dark");
+
+            // SI ES LICOR → obligar a escoger presentacion
+            if (categoriaSeleccionada === "licores") {
+                productoTemporal = { productoId, nombre, cantidad, stock };
+                $("#seccionPresentaciones").show();
+                $("#PresentacionId").html("<option>Cargando...</option>");
+
+                $.getJSON(`?handler=PresentacionesPorProducto&productoId=${productoId}`, function (data) {
+                    $("#PresentacionId").empty().append('<option value="">-- Seleccione una presentación --</option>');
+
+                    $.each(data, function (i, pres) {
+                        // En licores no mostramos stock
+                        $("#PresentacionId").append(`
+                            <option value="${pres.id}">
+                                ${pres.nombre} - ₡${pres.precioVenta.toFixed(2)}
+                            </option>
+                        `);
+                    });
+                });
+            }
+            else {
+                // Producto normal → validar stock
+                if (stock < cantidad) {
+                    alert(`⚠️ Stock insuficiente de "${nombre}". Solo hay ${stock}.`);
                     return;
                 }
 
                 agregarAlCarrito({
-                    productoId: productoTemporal.productoId,
-                    presentacionId: presId,
-                    nombre: productoTemporal.nombre,
-                    presentacion: presTexto,
-                    cantidad: cantidad,
-                    stock: stockPres
+                    productoId,
+                    presentacionId: null,
+                    nombre,
+                    presentacion: "-",
+                    cantidad,
+                    stock
                 });
+            }
+        });
 
-                productoTemporal = null;
-                $("#seccionPresentaciones").hide();
+        // =================== Selección de presentación (solo licores) ===================
+
+        $("#PresentacionId").change(function () {
+            const presId = $(this).val();
+
+            if (!productoTemporal || !presId) return;
+
+            const cantidad = productoTemporal.cantidad;
+
+            // Para licores: NO validamos stock en base a unidades
+            agregarAlCarrito({
+                productoId: productoTemporal.productoId,
+                presentacionId: presId,
+                nombre: productoTemporal.nombre,
+                presentacion: $("#PresentacionId option:selected").text(),
+                cantidad,
+                stock: Infinity
             });
-            //Valida que si el producto es licor, se haya escogido una presentación válida
-            function agregarAlCarrito(item) {
-                if ((item.presentacionId === "" || item.presentacionId === null) && categoriaSeleccionada.toLowerCase() === "licores") {
-                    alert("⚠️ Debes seleccionar una presentación válida antes de agregar el licor.");
-                    return;
-                }
-                //Busca si el producto ya fue agregado con la misma presentación para sumarle cantidad en lugar de duplicarlo
-                const indiceExistente = productosEnCarrito.findIndex(p =>
-                    p.productoId === item.productoId &&
-                    ((p.presentacionId === item.presentacionId) ||
-                     (p.presentacionId === null && item.presentacionId === null))
-                );
 
-                //Controla que no se supere el stock y actualiza los valores internos.
-                if (indiceExistente !== -1) {
-                    const productoExistente = productosEnCarrito[indiceExistente];
-                    const nuevaCantidad = productoExistente.cantidad + item.cantidad;
-                    const stockActual = stockDisponiblePorProducto[item.productoId];
-                    const stockDisponibleReal = stockActual + productoExistente.cantidad;
+            productoTemporal = null;
+            $("#seccionPresentaciones").hide();
+        });
 
-                    if (nuevaCantidad > stockDisponibleReal) {
-                        alert(`⚠️ No puedes agregar más. Stock disponible: ${stockDisponibleReal}`);
-                        return;
-                    }
+        // =================== Agregar al carrito ===================
 
-                    productosEnCarrito[indiceExistente].cantidad = nuevaCantidad;
-                    const nuevoStock = stockDisponiblePorProducto[item.productoId] - item.cantidad;
-                    stockDisponiblePorProducto[item.productoId] = nuevoStock;
-                    productosEnCarrito[indiceExistente].stockRestante = nuevoStock;
+        function agregarAlCarrito(item) {
 
-                   //Refresca el contador visual de stock directamente en el botón
-                    $(`#badge-${item.productoId}`).text(nuevoStock);
-
-                    if (nuevoStock <= 0) {
-                        $(`.producto-btn[data-id='${item.productoId}']`)
-                            .prop('disabled', true)
-                            .addClass('disabled')
-                            .find('.badge')
-                            .removeClass('bg-success')
-                            .addClass('bg-danger')
-                            .text('Sin stock');
-                    }
-
-                    renderTabla();
-                    return;
-                }
-
-                const nuevoStock = stockDisponiblePorProducto[item.productoId] - item.cantidad;
-                stockDisponiblePorProducto[item.productoId] = nuevoStock;
-                $(`#badge-${item.productoId}`).text(nuevoStock);
-
-                if (nuevoStock <= 0) {
-                    $(`.producto-btn[data-id='${item.productoId}']`)
-                        .prop('disabled', true)
-                        .addClass('disabled')
-                        .find('.badge')
-                        .removeClass('bg-success')
-                        .addClass('bg-danger')
-                        .text('Sin stock');
-                }
-
-                item.stockRestante = nuevoStock;
+            // 🔥 Para licores → SIN validación de stock visual
+            if (categoriaSeleccionada === "licores") {
+                item.stockRestante = "∞";
                 productosEnCarrito.push(item);
                 renderTabla();
+                return;
             }
 
-            //Muestra todos los productos agregados al carrito en una tabla permitiendo ver cantidad y stock restante
-            function renderTabla() {
-                const tbody = $("#tablaSeleccionados tbody");
-                tbody.empty();
-                if (productosEnCarrito.length === 0) {
-                    tbody.append("<tr><td colspan='4' class='text-muted'>Aún no hay productos seleccionados.</td></tr>");
+            // Productos normales → sí manejan stock
+            const idx = productosEnCarrito.findIndex(p =>
+                p.productoId === item.productoId &&
+                p.presentacionId === item.presentacionId
+            );
+
+            if (idx !== -1) {
+                const existente = productosEnCarrito[idx];
+                const nuevaCant = existente.cantidad + item.cantidad;
+                const stockActual = stockDisponiblePorProducto[item.productoId];
+                const stockDisponibleReal = stockActual + existente.cantidad;
+
+                if (nuevaCant > stockDisponibleReal) {
+                    alert(`⚠️ Stock insuficiente. Disponible: ${stockDisponibleReal}`);
                     return;
                 }
-                productosEnCarrito.forEach((p, i) => {
-                    tbody.append(`<tr>
+
+                existente.cantidad = nuevaCant;
+                stockDisponiblePorProducto[item.productoId] -= item.cantidad;
+                $(`#badge-${item.productoId}`).text(stockDisponiblePorProducto[item.productoId]);
+
+                renderTabla();
+                return;
+            }
+
+            // Nuevo producto
+            stockDisponiblePorProducto[item.productoId] -= item.cantidad;
+            $(`#badge-${item.productoId}`).text(stockDisponiblePorProducto[item.productoId]);
+
+            item.stockRestante = stockDisponiblePorProducto[item.productoId];
+            productosEnCarrito.push(item);
+            renderTabla();
+        }
+
+        // =================== Render de tabla del carrito ===================
+
+        function renderTabla() {
+            const tbody = $("#tablaSeleccionados tbody");
+            tbody.empty();
+
+            if (productosEnCarrito.length === 0) {
+                tbody.append("<tr><td colspan='4' class='text-muted'>Aún no hay productos seleccionados.</td></tr>");
+                return;
+            }
+
+            productosEnCarrito.forEach((p, i) => {
+
+                const stockInfo =
+                    categoriaSeleccionada === "licores"
+                    ? ""
+                    : `<small class='text-muted'>(Stock: ${p.stockRestante})</small>`;
+
+                tbody.append(`
+                    <tr>
                         <td>${p.nombre}</td>
                         <td>${p.presentacion}</td>
-                        <td>${p.cantidad} <small class="text-muted">(Stock: ${p.stockRestante})</small></td>
-                        <td><button class='btn btn-sm btn-danger eliminar-item' data-index='${i}'>🗑</button></td>
-                    </tr>`);
-                });
+                        <td>${p.cantidad} ${stockInfo}</td>
+                        <td>
+                            <button class='btn btn-sm btn-danger eliminar-item' data-index='${i}'>🗑</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // =================== Eliminar item del carrito ===================
+
+        $(document).on("click", ".eliminar-item", function () {
+            const idx = $(this).data("index");
+            const item = productosEnCarrito[idx];
+
+            // Solo restauramos stock si NO es licor
+            if (categoriaSeleccionada !== "licores") {
+                stockDisponiblePorProducto[item.productoId] += item.cantidad;
+                $(`#badge-${item.productoId}`).text(stockDisponiblePorProducto[item.productoId]);
             }
 
-            //Permite eliminar productos del carrito y restaurar el stock visualmente en los botones
-            $(document).on("click", ".eliminar-item", function () {
-                const index = $(this).data("index");
-                const producto = productosEnCarrito[index];
+            productosEnCarrito.splice(idx, 1);
+            renderTabla();
+        });
 
-                stockDisponiblePorProducto[producto.productoId] += producto.cantidad;
-                const nuevoStock = stockDisponiblePorProducto[producto.productoId];
-                $(`#badge-${producto.productoId}`).text(nuevoStock);
+        // =================== Guardar todo ===================
 
-                $(`.producto-btn[data-id='${producto.productoId}']`)
-                    .prop('disabled', false)
-                    .removeClass('disabled')
-                    .find('.badge')
-                    .removeClass('bg-danger')
-                    .addClass('bg-success');
+        $("#btnGuardarTodo").click(function (e) {
+            e.preventDefault();
 
-                productosEnCarrito.splice(index, 1);
-                renderTabla();
-            });
+            if (productosEnCarrito.length === 0) {
+                alert("⚠️ Debes agregar al menos un producto antes de guardar.");
+                return;
+            }
 
-            //Convierte los productos seleccionados en un JSON y los envía al servidor vía AJAX
-            $("#btnGuardarTodo").click(function (e) {
-                e.preventDefault();
-                if (productosEnCarrito.length === 0) {
-                    alert("⚠️ Debes agregar al menos un producto antes de guardar.");
-                    return;
-                }
+            const productosParaEnviar = productosEnCarrito.map(p => ({
+                productoId: p.productoId,
+                presentacionId: p.presentacionId,
+                cantidad: p.cantidad
+            }));
 
-                const productosParaEnviar = productosEnCarrito.map(p => ({
-                    productoId: p.productoId,
-                    presentacionId: p.presentacionId,
-                    cantidad: p.cantidad
-                }));
+            $.ajax({
+                url: `/POS/Detalles/${cuentaId}?handler=AgregarMultiples`,
+                method: "POST",
+                contentType: "application/json",
+                headers: { "RequestVerificationToken": token },
+                data: JSON.stringify(productosParaEnviar),
+                success: function (data) {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        let msg = "⚠️ No se pudieron agregar algunos productos:\n\n";
+                        data.errores.forEach(err => msg += `• ${err}\n`);
+                        mostrarModalError(mensaje);
 
-                $.ajax({
-                    url: `/POS/Detalles/${cuentaId}?handler=AgregarMultiples`,
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(productosParaEnviar),
-                    headers: { "RequestVerificationToken": token },
-                    success: function (data) {
-                        if (data.success) {
-                            window.location.reload();
-                        } else if (data.errores && data.errores.length > 0) {
-                            let mensaje = "⚠️ No se pudieron agregar algunos productos:\n\n";
-                            data.errores.forEach(err => mensaje += `• ${err}\n`);
-                            alert(mensaje);
-                        }
-                    },
-                    //Controla errores de stock o fallos en la base de datos y muestra alertas.
-                    error: function (xhr) {
-                        alert("❌ Error al guardar.\n" + (xhr.responseText || ""));
                     }
-                });
+                },
+                error: function (xhr) {
+                    alert("❌ Error al guardar.\n" + (xhr.responseText || ""));
+                }
             });
+        });
 
-            // =================== TABLA DE DETALLES (PRODUCTOS YA AGREGADOS) ===================
 
-            // Incrementa la cantidad en 1 y valida que no supere el stock máximo.
-            $(document).on("click", ".btn-mas", function () {
-                const detalleId = $(this).data("detalle-id");
-                const input = $(`input[data-detalle-id='${detalleId}']`);
+                    // =================== TABLA DE DETALLES (PRODUCTOS YA AGREGADOS) ===================
+
+        // BOTÓN +
+        $(document).on("click", ".btn-mas", function () {
+            const detalleId = $(this).data("detalle-id");
+            const input = $(`input[data-detalle-id='${detalleId}']`);
+            let cantidad = parseInt(input.val()) || 1;
+
+            // Para licores → permitir infinitamente, backend valida ml
+            const esLicor = input.closest("tr").find("td:nth-child(3)").text().includes("ml")
+                            || input.closest("tr").find("td:nth-child(2)").text() !== "-";
+
+            if (!esLicor) {
+                // Productos normales mantienen stockMax
                 const stockMax = parseInt($(this).data("stock-max")) || 999;
-                let cantidad = parseInt(input.val()) || 0;
 
                 if (cantidad >= stockMax) {
-                    $(this).removeClass('btn-outline-secondary')
-                           .addClass('btn-danger')
-                           .prop('disabled', true);
-                    alert(`⚠️ Stock máximo alcanzado (${stockMax} unidades disponibles)`);
+                    alert(`⚠️ Stock máximo alcanzado (${stockMax} unidades)`);
                     return;
                 }
+            }
 
-                cantidad++;
+            cantidad++;
+            input.val(cantidad);
+
+            // Llamar al backend
+            actualizarCantidad(detalleId, cantidad);
+        });
+
+        // BOTÓN -
+        $(document).on("click", ".btn-menos", function () {
+            const detalleId = $(this).data("detalle-id");
+            const input = $(`input[data-detalle-id='${detalleId}']`);
+            let cantidad = parseInt(input.val()) || 1;
+
+            if (cantidad > 1) {
+                cantidad--;
                 input.val(cantidad);
-
-                if (cantidad >= stockMax) {
-                    $(this).removeClass('btn-outline-secondary')
-                           .addClass('btn-danger')
-                           .prop('disabled', true);
-                }
-
-                //Llama a la función actualizarCantidad para reflejar cambios en el servidor y actualizar subtotal y total.
                 actualizarCantidad(detalleId, cantidad);
-            });
+            }
+        });
 
-            //Disminuye la cantidad hasta 1 y vuelve a habilitar el botón + si estaba deshabilitado.
-            $(document).on("click", ".btn-menos", function () {
-                const detalleId = $(this).data("detalle-id");
-                const input = $(`input[data-detalle-id='${detalleId}']`);
-                let cantidad = parseInt(input.val()) || 0;
+        // CAMBIO MANUAL
+        $(document).on("change", ".cantidad-input", function () {
+            const detalleId = $(this).data("detalle-id");
+            let nuevaCantidad = parseInt($(this).val()) || 1;
 
-                if (cantidad > 1) {
-                    cantidad--;
-                    input.val(cantidad);
+            if (nuevaCantidad < 1) nuevaCantidad = 1;
 
-                    const btnMas = $(`.btn-mas[data-detalle-id='${detalleId}']`);
-                    btnMas.removeClass('btn-danger')
-                          .addClass('btn-outline-secondary')
-                          .prop('disabled', false);
+            // Licores → no validar stockMax
+            const esLicor = $(this).closest("tr").find("td:nth-child(2)").text() !== "-";
 
-                    //Llama a la función actualizarCantidad para reflejar cambios en el servidor y actualizar subtotal y total.
-                    actualizarCantidad(detalleId, cantidad);
-                }
-            });
-
-            // Permite al usuario ingresar la cantidad manualmente validando el stock mínimo y máximo
-            $(document).on("change", ".cantidad-input", function () {
-                const detalleId = $(this).data("detalle-id");
+            if (!esLicor) {
                 const stockMax = parseInt($(this).data("stock-max")) || 999;
-                let nuevaCantidad = parseInt($(this).val()) || 1;
-
                 if (nuevaCantidad > stockMax) {
-                    alert(`⚠️ Stock máximo: ${stockMax} unidades`);
-                    $(this).val(stockMax);
+                    alert(`⚠️ Stock máximo: ${stockMax}`);
                     nuevaCantidad = stockMax;
                 }
+            }
 
-                if (nuevaCantidad < 1) {
-                    $(this).val(1);
-                    nuevaCantidad = 1;
-                }
+            $(this).val(nuevaCantidad);
+            actualizarCantidad(detalleId, nuevaCantidad);
+        });
 
-                actualizarCantidad(detalleId, nuevaCantidad);
-            });
 
             // 🔹 FUNCIÓN PARA ACTUALIZAR CANTIDAD actualiza el subtotal, total general y el stock disponible del producto
             function actualizarCantidad(detalleId, cantidad) {
@@ -736,20 +736,14 @@ else // Si hay detalless, muestra tabla con productos
                                 input.attr('data-stock-max', data.stockDisponible);
                                 btnMas.attr('data-stock-max', data.stockDisponible);
 
-                                // Actualizar texto de stock
-                                $(`#row-${detalleId} small.text-muted`).text(`Stock: ${data.stockDisponible}`);
+                                // NO actualizar texto de stock
+                                // NO bloquear botón para licores
 
-                                // Estado del botón +
-                                if (cantidad >= data.stockDisponible) {
-                                    btnMas.removeClass('btn-outline-secondary')
-                                          .addClass('btn-danger')
-                                          .prop('disabled', true);
-                                } else {
-                                    btnMas.removeClass('btn-danger')
-                                          .addClass('btn-outline-secondary')
-                                          .prop('disabled', false);
-                                }
+                                btnMas.removeClass('btn-danger')
+                                      .addClass('btn-outline-secondary')
+                                      .prop('disabled', false);
                             }
+
                         } else {
                             alert("⚠️ " + (data?.message || "Error al actualizar"));
                             // Revertir cambio
@@ -929,3 +923,28 @@ else // Si hay detalless, muestra tabla con productos
         });
     </script>
 }
+
+<!-- Modal de error elegante -->
+<div class="modal fade" id="modalError" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-warning">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    ⚠️ Error al agregar productos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Aquí se insertará el texto de error -->
+                <div id="modalErrorTexto" class="fw-bold"></div>
+            </div>
+
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

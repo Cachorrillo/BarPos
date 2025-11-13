@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BarPos")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+18aec2e6753f83904ed86541bbf95b62c467892b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+250c7ad9d750c000311df494fcb6ee80182a08bc")]
 [assembly: System.Reflection.AssemblyProductAttribute("BarPos")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BarPos")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
