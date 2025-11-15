@@ -1,26 +1,32 @@
 using BarPos.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Text;
+using BarPos.Services.Impresion;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Registrar CP850 (para acentos en impresión)
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+// Configurar base de datos
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Configurar cultura global
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
-
-// Add services to the container.
+// Servicios
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<ReceiptService>(); // <-- agregado
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -28,8 +34,32 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthorization();
+
+// ------- ENDPOINT PARA IMPRESIÓN -------
+app.MapGet("/api/impresion/cuenta/{id:long}", (long id, ReceiptService receiptService) =>
+{
+    try
+    {
+        var bytes = receiptService.GenerarRecibo(id);
+        var base64 = Convert.ToBase64String(bytes);
+
+        return Results.Json(new
+        {
+            success = true,
+            data = base64
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new
+        {
+            success = false,
+            error = ex.Message
+        });
+    }
+});
+// ----------------------------------------
 
 app.MapRazorPages();
 
