@@ -374,6 +374,10 @@ else // Si hay detalless, muestra tabla con productos
 
 <!-- Scripts específicos de JavaScript para esta página -->
 @section Scripts {
+
+    <script src="~/js/qz-tray.js"></script>
+    <script src="~/js/pos-imprimir.js"></script>
+
     <script>
         $(document).ready(function () {
             const cuentaId = @Model.Cuenta.Id;// Obtiene el ID de la cuenta actual del modelo Razor
@@ -900,7 +904,23 @@ else // Si hay detalless, muestra tabla con productos
                         montoPagado: montoPagado.toFixed(2),
                         vuelto: vuelto.toFixed(2)
                     },
-                    success: function () {
+                    success: async function () {
+
+                        // ============================
+                        // 🔥 IMPRIMIR AUTOMÁTICAMENTE
+                        // ============================
+                        try {
+                            await imprimirCuenta(cuentaId);
+                        }
+                        catch (err) {
+                            console.error("Error al imprimir automáticamente:", err);
+                            alert("⚠️ La cuenta se cerró, pero no se pudo imprimir.\n" +
+                                  "Verifique que QZ Tray esté abierto.");
+                        }
+
+                        // ============================
+                        // 🔵 ANIMACIÓN DE ÉXITO
+                        // ============================
                         const modalEl = document.getElementById('modalPago');
                         const modal = bootstrap.Modal.getInstance(modalEl);
                         modal.hide();
@@ -909,6 +929,9 @@ else // Si hay detalless, muestra tabla con productos
                         const msg = document.getElementById("mensajePagoExitoso");
                         msg.style.display = "block";
 
+                        // ============================
+                        // 🔵 REDIRIGIR LUEGO DE 2.5s
+                        // ============================
                         setTimeout(() => {
                             msg.style.display = "none";
                             document.body.classList.remove("flash-green");
@@ -919,6 +942,7 @@ else // Si hay detalless, muestra tabla con productos
                         alert('❌ Error al cerrar la cuenta.\n' + (xhr.responseText || ''));
                     }
                 });
+
             });
         });
     </script>

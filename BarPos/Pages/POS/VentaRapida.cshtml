@@ -129,6 +129,12 @@
 </div>
 
 @section Scripts {
+
+    <script src="~/js/qz-tray.js"></script>
+    <script src="~/js/pos-imprimir.js"></script>
+
+
+
     <script>
         $(function () {
             const token = $('#antiForgery input[name="__RequestVerificationToken"]').val();
@@ -451,21 +457,33 @@
                             Cantidad: p.cantidad
                         }))
                     }),
-                    success: function (res) {
-                        if (res.success) {
-                            // Animación visual como en el POS principal
-                            document.body.classList.add("flash-green");
-                            $("#mensajePagoExitoso").fadeIn(200);
-
-                            setTimeout(() => {
-                                $("#mensajePagoExitoso").fadeOut(400);
-                                document.body.classList.remove("flash-green");
-                                window.location.href = "/POS/Index";
-                            }, 1800);
-                        } else {
+                    success: async function (res) {
+                        if (!res.success) {
                             alert("⚠️ " + (res.message || "Error al procesar la venta."));
+                            return;
                         }
+
+                        const cuentaId = res.cuentaId;   // ⬅ NECESARIO PARA IMPRIMIR
+
+                        // 1. IMPRIMIR AUTOMÁTICAMENTE
+                        try {
+                            await imprimirCuenta(cuentaId);   // 🔥 Usa la misma función del POS
+                        } catch (err) {
+                            console.error(err);
+                            alert("⚠️ La venta se procesó, pero no se pudo imprimir.\nVerifique que QZ Tray esté abierto.");
+                        }
+
+                        // 2. ANIMACIÓN DE ÉXITO (igual que POS)
+                        document.body.classList.add("flash-green");
+                        $("#mensajePagoExitoso").fadeIn(200);
+
+                        setTimeout(() => {
+                            $("#mensajePagoExitoso").fadeOut(400);
+                            document.body.classList.remove("flash-green");
+                            window.location.href = "/POS/Index";
+                        }, 1800);
                     }
+
                 });
             });
         });
