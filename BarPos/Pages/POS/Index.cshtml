@@ -6,15 +6,25 @@
 
 <h2 class="text-center mb-4">🧾 Cuentas Abiertas</h2>
 
-<div class="mb-3 d-flex justify-content-between">
-    <a asp-page="Create" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Nueva Cuenta
-    </a>
-    <a asp-page="/POS/VentaRapida" class="btn btn-primary">
-        <i class="bi bi-lightning-charge"></i> Venta Rápida
-    </a>
-    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalCerrarCaja">
-        <i class="bi bi-calculator"></i> Cerrar Caja
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <div>
+        <a asp-page="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nueva Cuenta
+        </a>
+        <a asp-page="/POS/VentaRapida" class="btn btn-primary">
+            <i class="bi bi-lightning-charge"></i> Venta Rápida
+        </a>
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalCerrarCaja">
+            <i class="bi bi-calculator"></i> Cerrar Caja
+        </button>
+    </div>
+
+    <!-- BOTÓN IMPRIMIR CORTE -->
+    <button id="btnImprimirCorte"
+            class="btn btn-secondary"
+            onclick="imprimirCorteSeleccionado()"
+            disabled>
+        <i class="bi bi-printer"></i> Imprimir Corte
     </button>
 </div>
 
@@ -38,7 +48,8 @@ else
         <tbody>
             @foreach (var cuenta in Model.CuentasAbiertas)
             {
-                <tr>
+                <!-- FILA SELECCIONABLE -->
+                <tr onclick="seleccionarCuenta(@cuenta.Id)" style="cursor:pointer;">
                     <td>@cuenta.NombreCliente</td>
                     <td>@cuenta.FechaApertura.ToString("g")</td>
                     <td>@cuenta.Total.ToString("N2")</td>
@@ -232,18 +243,153 @@ else
             z-index: 10;
         }
     }
+
+    /* Fila seleccionada */
+    .fila-seleccionada {
+        background-color: #ffe49c !important;
+    }
 </style>
 
 @section Scripts {
+
+    <!-- ============================== -->
+    <!--   IMPRESIÓN POS + QZ TRAY      -->
+    <!-- ============================== -->
+
+    <script src="~/js/qz-tray.js"></script>
+
+    <script>
+        let cuentaSeleccionada = null;
+        let filaSeleccionada = null;
+
+        // ===========================
+        //   SELECCIÓN DE LA CUENTA
+        // ===========================
+        function seleccionarCuenta(id) {
+            cuentaSeleccionada = id;
+
+            if (filaSeleccionada)
+                filaSeleccionada.classList.remove("fila-seleccionada");
+
+            filaSeleccionada = event.currentTarget;
+            filaSeleccionada.classList.add("fila-seleccionada");
+
+            document.getElementById("btnImprimirCorte").disabled = false;
+        }
+
+        // ===========================
+        //   CONEXIÓN QZ TRAY
+        // ===========================
+        async function conectarQZ() {
+            if (qz.websocket.isActive()) return;
+            await qz.websocket.connect();
+        }
+
+        // ===========================
+        //  OBTENER IMPRESORA POS
+        //  (flexible, inteligente)
+        // ===========================
+        async function obtenerImpresoraPOS() {
+            let impresoraGuardada = localStorage.getItem("impresoraPOS");
+
+            if (impresoraGuardada) return impresoraGuardada;
+
+            const impresoras = await qz.printers.find();
+
+            if (!impresoras || impresoras.length === 0)
+                throw new Error("No se encontraron impresoras.");
+
+            // Filtrar impresoras térmicas por nombre
+            const termicas = impresoras.filter(p =>
+                p.toLowerCase().includes("pos") ||
+                p.toLowerCase().includes("80") ||
+                p.toLowerCase().includes("thermal") ||
+                p.toLowerCase().includes("printer") ||
+                p.toLowerCase().includes("xp")
+            );
+
+            let seleccion;
+
+            if (termicas.length === 1) {
+                seleccion = termicas[0];
+            } else {
+                seleccion = prompt(
+                    "Seleccione la impresora térmica:\n\n" +
+                    impresoras.map((p, i) => `${i + 1}. ${p}`).join("\n")
+                );
+
+                const index = parseInt(seleccion) - 1;
+
+                if (isNaN(index) || index < 0 || index >= impresoras.length) {
+                    throw new Error("Selección inválida.");
+                }
+
+                seleccion = impresoras[index];
+            }
+
+            localStorage.setItem("impresoraPOS", seleccion);
+            return seleccion;
+        }
+
+        // ===========================
+        //  OBTENER RECIBO BASE64
+        // ===========================
+        async function obtenerReciboBase64(id) {
+            const resp = await fetch(`/api/impresion/cuenta/${id}`);
+            const json = await resp.json();
+            if (!json.success)
+                throw new Error(json.error);
+            return json.data;
+        }
+
+        // ===========================
+        //  IMPRIMIR CUENTA (CORTE)
+        // ===========================
+        async function imprimirCuenta(id) {
+            await conectarQZ();
+
+            const impresora = await obtenerImpresoraPOS();
+            const config = qz.configs.create(impresora);
+
+            const base64 = await obtenerReciboBase64(id);
+
+            const data = [{
+                type: 'raw',
+                format: 'base64',
+                data: base64
+            }];
+
+            await qz.print(config, data);
+        }
+
+        // ===========================
+        // BOTÓN IMPRIMIR CORTE
+        // ===========================
+        async function imprimirCorteSeleccionado() {
+            if (!cuentaSeleccionada) {
+                alert("Seleccione una cuenta.");
+                return;
+            }
+
+            await imprimirCuenta(cuentaSeleccionada);
+            alert("Corte impreso correctamente.");
+        }
+    </script>
+
+
+
+
+    <!-- ============================== -->
+    <!-- TODO TU SCRIPT ORIGINAL SIGUE TAL CUAL -->
+    <!-- ============================== -->
+
     <script>
         $(function () {
             const fmt = v => (Number(v) || 0).toLocaleString("es-CR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            // Fecha hoy
             const hoy = new Date().toISOString().split("T")[0];
             $("#fechaCaja").val(hoy);
 
-            // Eventos
             $("#modalCerrarCaja").on("shown.bs.modal", consultarResumen);
             $("#fechaCaja").on("change", consultarResumen);
 
@@ -265,13 +411,11 @@ else
                             return;
                         }
 
-                        // Resumen numérico
                         $("#totalCuentas").text(data.totalCuentas);
                         $("#totalVentas").text("₡" + fmt(data.totalVentas));
                         $("#ventasEfectivo").text("₡" + fmt(data.ventasEfectivo));
                         $("#ventasTarjeta").text("₡" + fmt(data.ventasTarjeta));
 
-                        // Tablas
                         rellenarTabla("#tablaMasVendidos", data.productosMasVendidos);
                         rellenarTabla("#tablaMenosVendidos", data.productosMenosVendidos);
                         rellenarTablaCompleta("#tablaTodosProductos", data.todosProductosVendidos);
