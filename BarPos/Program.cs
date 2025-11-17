@@ -17,7 +17,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
+<<<<<<< HEAD
 // Servicios
+=======
+// Configuracion sesiones
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+
+// Add services to the container.
+>>>>>>> 9ce857a (Sistema de roles)
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<ReceiptService>(); // <-- agregado
 
@@ -34,6 +48,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+<<<<<<< HEAD
+=======
+
+app.UseSession();
+
+>>>>>>> 9ce857a (Sistema de roles)
 app.UseAuthorization();
 
 // ------- ENDPOINT PARA IMPRESIÓN -------
