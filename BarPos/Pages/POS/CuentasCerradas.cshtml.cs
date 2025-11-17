@@ -25,16 +25,8 @@ namespace BarPos.Pages.POS
         [BindProperty(SupportsGet = true)]
         public DateTime? FiltroFecha { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task OnGetAsync()
         {
-            // Verificar que haya usuario autenticado (Administrador o Empleado)
-            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
-            if (string.IsNullOrEmpty(tipoUsuario))
-            {
-                return RedirectToPage("/Index");
-            }
-
-
             var query = _context.Cuentas
                 .Include(c => c.DetalleCuenta)
                     .ThenInclude(d => d.Presentacion)
@@ -59,12 +51,7 @@ namespace BarPos.Pages.POS
             CuentasCerradas = await query
                 .OrderByDescending(c => c.FechaApertura)
                 .ToListAsync();
-
-            return Page();
-
-
         }
-
 
 
     }

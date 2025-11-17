@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace BarPos.Models;
 
@@ -27,8 +26,6 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Presentacion> Presentaciones { get; set; }
 
     public virtual DbSet<Producto> Productos { get; set; }
-
-    public virtual DbSet<Contrasena> Contrasena { get; set; }
 
     //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -140,13 +137,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.CategoriaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Productos_Categorias");
-        });
-
-        modelBuilder.Entity<Contrasena>(entity =>
-        {
-            entity.HasKey(e => e.Clave);
-            entity.Property(e => e.Clave).HasMaxLength(50);
-            entity.Property(e => e.Valor).HasMaxLength(500);
         });
 
         OnModelCreatingPartial(modelBuilder);

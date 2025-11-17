@@ -17,21 +17,12 @@ namespace BarPos.Pages.Categorias
 
         public IList<Categoria> ListaCategorias { get; set; } = new List<Categoria>();
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task OnGetAsync()
         {
-            // Verificar que sea administrador
-            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
-            if (tipoUsuario != "Administrador")
-            {
-                return RedirectToPage("/Index");
-            }
-
-            ListaCategorias = await _context.Categorias.ToListAsync();
-
-            return Page();
+           ListaCategorias = await _context.Categorias.ToListAsync();
         }
 
 
-
+        
     }
 }

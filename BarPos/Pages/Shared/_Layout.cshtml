@@ -11,14 +11,6 @@
 
 </head>
 <body>
-
-    @{
-        var tipoUsuario = Context.Session.GetString("TipoUsuario");
-        var esAdmin = tipoUsuario == "Administrador";
-        var esEmpleado = tipoUsuario == "Empleado";
-        var hayUsuario = !string.IsNullOrEmpty(tipoUsuario);
-    }
-
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
@@ -29,72 +21,40 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                       
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
-                        @if (hayUsuario)
-                        {
-                            @* Opciones solo para Administrador *@
-                            @if (esAdmin)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Productos/Index">Productos</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Categorias/Index">Categorias</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Presentaciones/Index">Presentaciones</a>
-                                </li>
-                            }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Productos/Index">Productos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Categorias/Index">Categorias</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Presentaciones/Index">Presentaciones</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/POS/Index">Punto de Venta</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/POS/CuentasCerradas">
+                                <i class="bi bi-journal-check"></i> Cuentas Cerradas
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/POS/CuentasAbiertas">
+                                <i class="bi bi-hourglass-split"></i> Cuentas Sin Pagar
+                            </a>
+                        </li>
+                  
 
 
-                            @* Opciones para todos *@
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/POS/Index">Punto de Venta</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/POS/CuentasCerradas">
-                                    <i class="bi bi-journal-check"></i> Cuentas Cerradas
-                                </a>
-                            </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/POS/CuentasAbiertas">
-                                    <i class="bi bi-hourglass-split"></i> Cuentas Sin Pagar
-                                </a>
-                            </li>
-                        }
-
-                    </ul>
-
-                    @* Información del usuario *@
-                    <ul class="navbar-nav">
-                        @if (hayUsuario)
-                        {
-                            <li class="nav-item">
-                                <span class="navbar-text me-2">
-                                    @if (esAdmin)
-                                    {
-                                        <i class="bi bi-shield-fill-check text-primary"></i>
-                                        <span class="badge bg-primary">Administrador</span>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-person-fill text-success"></i>
-                                        <span class="badge bg-success">Empleado</span>
-                                    }
-                                </span>
-                            </li>
-                            <li class="nav-item">
-                                <form method="post" asp-page="/Roles/Logout" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                    </button>
-                                </form>
-                            </li>
-                        }
                     </ul>
                 </div>
             </div>

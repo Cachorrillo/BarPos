@@ -17,10 +17,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
-<<<<<<< HEAD
-// Servicios
-=======
-// Configuracion sesiones
+// -------------------------------
+// Configuración de sesiones
+// -------------------------------
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -29,11 +28,11 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-
-// Add services to the container.
->>>>>>> 9ce857a (Sistema de roles)
+// -------------------------------
+// Servicios
+// -------------------------------
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<ReceiptService>(); // <-- agregado
+builder.Services.AddScoped<ReceiptService>(); // servicio de impresión
 
 var app = builder.Build();
 
@@ -48,12 +47,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-<<<<<<< HEAD
-=======
 
+// Activar sesiones
 app.UseSession();
 
->>>>>>> 9ce857a (Sistema de roles)
 app.UseAuthorization();
 
 // ------- ENDPOINT PARA IMPRESIÓN -------

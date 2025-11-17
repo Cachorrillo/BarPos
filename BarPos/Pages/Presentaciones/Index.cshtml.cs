@@ -16,22 +16,15 @@ namespace BarPos.Pages.Presentaciones
 
         public IList<Presentacion> ListaPresentaciones { get; set; } = new List<Presentacion>();
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task OnGetAsync()
         {
-            // Verificar que sea administrador
-            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
-            if (tipoUsuario != "Administrador")
-            {
-                return RedirectToPage("/Index");
-            }
-
             ListaPresentaciones = await _context.Presentaciones
                 .Include(p => p.Producto)
                 .ThenInclude(prod => prod.Categoria)
                 .OrderBy(p => p.Producto.Nombre)
                 .ToListAsync();
 
-            return Page();
+
         }
     }
 }
