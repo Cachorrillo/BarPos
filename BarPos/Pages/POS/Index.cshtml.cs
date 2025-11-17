@@ -17,18 +17,34 @@ namespace BarPos.Pages.POS
 
         public IList<Cuenta> CuentasAbiertas { get; set; } = new List<Cuenta>();
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            // Trae solo las cuentas abiertas
+            // Verificar que haya usuario autenticado (Administrador o Empleado)
+            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
+            if (string.IsNullOrEmpty(tipoUsuario))
+            {
+                return RedirectToPage("/Index");
+            }
 
+            // Trae solo las cuentas abiertas
             CuentasAbiertas = await _context.Cuentas
                 .Where(c => c.Estado == "Abierta")
                 .OrderByDescending(c => c.FechaApertura)
                 .ToListAsync();
-        }
+
+            return Page();
+        } 
 
         public async Task<IActionResult> OnPostCerrarCuentaAsync(long id)
         {
+
+            // Verificar que haya usuario autenticado
+            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
+            if (string.IsNullOrEmpty(tipoUsuario))
+            {
+                return RedirectToPage("/Index");
+            }
+
             var cuenta = await _context.Cuentas.FindAsync(id);
 
             if (cuenta == null)
@@ -44,6 +60,13 @@ namespace BarPos.Pages.POS
         }
         public async Task<JsonResult> OnGetResumenCajaAsync(string fecha)
         {
+            // Verificar que haya usuario autenticado
+            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
+            if (string.IsNullOrEmpty(tipoUsuario))
+            {
+                return new JsonResult(new { success = false, message = "No autenticado" });
+            }
+
             // Si no se proporciona fecha, usar hoy
             DateTime fechaConsulta;
             if (string.IsNullOrEmpty(fecha) || !DateTime.TryParse(fecha, out fechaConsulta))

@@ -14,13 +14,20 @@ namespace BarPos.Pages.Productos
         }
         public IList<Producto> ListaProductos { get;set; } = new List<Producto>();    
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             //aqui se incluye las categorias para mostrar el nombre de la categoria en la vista
-
+            // Verificar que sea administrador
+            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
+            if (tipoUsuario != "Administrador")
+            {
+                return RedirectToPage("/Index");
+            }
             ListaProductos = await _context.Productos
                 .Include(p => p.Categoria)
                 .ToListAsync();
+
+            return Page();
 
         }
 

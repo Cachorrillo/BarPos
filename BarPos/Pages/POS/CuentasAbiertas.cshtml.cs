@@ -19,8 +19,15 @@ namespace BarPos.Pages.POS
         [BindProperty(SupportsGet = true)]
         public string? FiltroCliente { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
+            // Verificar que haya usuario autenticado (Administrador o Empleado)
+            var tipoUsuario = HttpContext.Session.GetString("TipoUsuario");
+            if (string.IsNullOrEmpty(tipoUsuario))
+            {
+                return RedirectToPage("/Index");
+            }
+
             var query = _context.Cuentas
                 .Include(c => c.DetalleCuenta)
                     .ThenInclude(d => d.Producto)
@@ -37,6 +44,8 @@ namespace BarPos.Pages.POS
             CuentasAbiertas = await query
                 .OrderByDescending(c => c.FechaApertura)
                 .ToListAsync();
+
+            return Page();
         }
     }
 }
